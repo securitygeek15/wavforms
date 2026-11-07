@@ -2,11 +2,11 @@
   <img src="assets/logo.png" alt="wavforms logo" width="128" height="128" style="border-radius: 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);" />
   <h1>wavforms</h1>
   <p><strong>Real-time word-by-word synchronized lyrics on Windows.</strong></p>
-  <p>Inspired by the minimalist luxury of Verci. Light lyrics one word at a time over pitch black glass.</p>
+  <p>Inspired by the minimalist luxury of Verci. Light lyrics one word at a time over pitch-black glass.</p>
 
   <p>
     <a href="#features">Features</a> •
-    <a href="#four-display-styles">The 4 Styles</a> •
+    <a href="#display-styles">Styles</a> •
     <a href="#quick-start">Quick Start</a> •
     <a href="#how-it-works">Architecture</a> •
     <a href="#license">License</a>
@@ -27,37 +27,30 @@
 
 **wavforms** brings the acclaimed lock-screen word-by-word lyric experience from macOS (Verci) to Windows. 
 
-Instead of scrolling a line at a time, **wavforms** reads real per-word timestamps (**YRC format**) and lights each individual word precisely as it is sung by the artist.
-
-Upload your own music files or local folders, drag-and-drop `.lrc` / `.yrc` lyric files, or let the automated lyric engine fetch word-level timings instantly.
+Instead of showing walls of static text, **wavforms** features focused single-line **"Drops in an Ocean"** liquid kinetic typography, reading real per-word timestamps (**YRC format**) and lighting each syllable precisely as it is sung by the artist.
 
 ---
 
 ## ✨ Features
 
-- **True Word-by-Word Timings**: Reads exact millisecond timestamps (`[start, duration](w_start, w_dur)Word`) powered by the NetEase Cloud Music YRC karaoke engine, with proportional word-length interpolation fallback via LRCLIB.
-- **Pure Verci-Aesthetic Interface**: Pitch-black canvas (`#000000`), frosted glass top bar, minimal HUD scrubber, and massive typographic presence.
-- **Drag & Drop Local Songs & Folders**: Drop any `.mp3`, `.wav`, `.flac`, `.m4a`, or `.ogg` files or entire folders. Built-in ID3 tag reader automatically extracts title, artist, album, and embedded cover art.
-- **Custom Lyrics Support**: Drop custom `.lrc` or `.yrc` files directly into the window to synchronize your own lyrics.
-- **Album Art Color Auto-Sync**: Dynamically samples the palette of your album art to calibrate the accent highlight glow.
+- **Kinetic Word-by-Word Timings**: Reads exact millisecond timestamps (`[start, duration](w_start, w_dur)Word`) powered by the NetEase Cloud Music YRC karaoke engine, with proportional word-length interpolation fallback via LRCLIB.
+- **Ocean Drops Liquid Typography**: Only the current active line is spotlighted at center stage. Words drop in like fluid water droplets with snappy, fast-paced velocity (`0.14s - 0.22s`), blooming into vibrant luminescent acoustic ripples.
+- **Contextual Lyric Emotion Colors**: Dynamic color themes mapped to lyric sentiment (fire burns crimson, water flows cyan, starlight radiates gold, romance glows rose coral).
+- **Import Songs Landing Screen**: Clean, dedicated opening view. Drop any audio files or folders to start. No preloaded clutter.
+- **Instant Offset Calibrator**: Fine-tune sync by `±100ms` on the fly using on-screen buttons or hotkeys `[` and `]`.
+- **Drag & Drop Local Songs & Folders**: Supports MP3, WAV, FLAC, M4A, OGG, and custom `.lrc` / `.yrc` files.
 - **Ambient Fullscreen Mode**: Press **`F`** to turn your monitor or TV into an ambient music centerpiece.
-- **Keyboard Shortcuts**:
-  - `Space`: Play / Pause
-  - `←` / `→`: Seek ±5 seconds
-  - `F`: Toggle Fullscreen
 
 ---
 
-## 🎨 The 4 Display Styles
+## 🎨 The 2 Core Display Styles
 
-Switch styles seamlessly on the fly from the top menu bar:
+Switch styles seamlessly from the top menu bar:
 
 | Style | Description |
 | :--- | :--- |
-| **Ship** | Words stack into a 3D perspective wall that subtly drifts with depth. |
-| **Fisheye** | Convex spherical bulge lens effect — the active word sits closest to the glass with radial glare. |
-| **Visual** | SF-style icons and emojis (`✨`, `💡`, `🌙`, `❤️`, `👀`, `👶`, `🔥`, `🏙️`) pop in beside sung words on their exact millisecond. |
-| **Fisheye Visual** | The convex glass lens with icons active at the same time. |
+| **Ship** | Words stack into a 3D perspective wall that subtly drifts with camera parallax and ocean depth. |
+| **Visual** | High-velocity word-by-word kinetic lighting paired with floating, color-matched emoji bubbles. |
 
 ---
 
@@ -68,8 +61,6 @@ Switch styles seamlessly on the fly from the top menu bar:
 - Windows 10 or 11
 
 ### 2. Launching wavforms
-Clone the repository and launch directly:
-
 ```bash
 git clone https://github.com/wavforms/wavforms.git
 cd wavforms
@@ -82,39 +73,22 @@ Or via npm:
 ```bash
 npm start
 ```
-Then visit `http://localhost:3000` or let `run.bat` open it in a frameless desktop window.
+Then open `http://localhost:3000`.
 
 ---
 
-## 🛠️ Architecture
+## ⌨️ Shortcuts & Controls
 
-```mermaid
-flowchart TD
-    subgraph Ingestion
-        LocalFiles[Local Audio Files / Folders] --> ID3[ID3 Metadata & Artwork Parser]
-        CustomLrc[Dropped .lrc / .yrc Files] --> LyricEngine
-    end
-
-    subgraph Backend Engine [server.js]
-        ID3 --> QueryAPI[Lyrics Query API]
-        QueryAPI -->|Primary| NCM[NetEase YRC Word-by-Word]
-        QueryAPI -->|Fallback| LRCLIB[LRCLIB Synced API]
-        NCM --> LyricEngine[Word-Level Timings Engine]
-        LRCLIB --> LyricEngine
-    end
-
-    subgraph Frontend [public/]
-        LyricEngine --> Renderer[60/120 FPS Clock Sync]
-        Renderer --> Style1[Ship 3D Wall]
-        Renderer --> Style2[Fisheye Lens]
-        Renderer --> Style3[Visual Glyphs]
-        Renderer --> Style4[Fisheye Visual]
-    end
-```
+| Action | Key / Action |
+| :--- | :--- |
+| **Play / Pause** | `Space` |
+| **Seek ±5s** | `←` / `→` |
+| **Fine-tune Sync (±100ms)** | `[` / `]` |
+| **Toggle Fullscreen** | `F` |
+| **Import Songs / Folder** | Drag & drop anywhere, or click **Upload** / **Folder** |
 
 ---
 
 ## 📄 License
 
 MIT License. See [LICENSE](LICENSE) for details.
-

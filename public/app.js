@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//   wavforms — "Drops in an Ocean" Word-by-Word Lyric Engine
+//   wavforms — Fast-Paced Ocean Drops Word-by-Word Engine
 // ═══════════════════════════════════════════════════════════════
 
 // Rich vocabulary mapping with custom emotion colors and emojis
@@ -85,10 +85,11 @@ let playlist = [];
 let currentTrackIndex = -1;
 let currentLyrics = null;
 let activeLineIndex = -1;
-let lyricOffsetMs = 0; // Millisecond fine-tuning sync offset
+let lyricOffsetMs = 0; // Fine-tuning sync offset
 let isSeeking = false;
 
 // DOM
+const body = document.body;
 const audio = document.getElementById('audio');
 const hudPlay = document.getElementById('hud-play');
 const iconPlay = document.getElementById('icon-play');
@@ -115,7 +116,7 @@ const queueItems = document.getElementById('queue-items');
 const queueNum = document.getElementById('queue-num');
 const dropOverlay = document.getElementById('drop-overlay');
 
-// ──── OFFSET CALIBRATION (Insane Accuracy) ────
+// ──── OFFSET CALIBRATION ────
 function updateOffset(deltaMs) {
   lyricOffsetMs += deltaMs;
   const sec = (lyricOffsetMs / 1000).toFixed(1);
@@ -127,6 +128,7 @@ document.getElementById('btn-offset-plus').addEventListener('click', () => updat
 
 // ──── PLAYBACK CONTROLS ────
 function togglePlayback() {
+  if (playlist.length === 0) return;
   if (audio.paused) {
     audio.play().then(() => updatePlayState(true)).catch(() => updatePlayState(false));
   } else {
@@ -213,6 +215,9 @@ async function loadTrack(index) {
   currentTrackIndex = index;
   const track = playlist[index];
 
+  // Remove empty opening state!
+  body.classList.remove('state-empty');
+
   displayTitle.textContent = track.title;
   if (track.artist && track.artist !== "Local Track") {
     displayArtist.textContent = track.artist;
@@ -238,7 +243,7 @@ async function loadTrack(index) {
     audio.src = track.url;
   }
 
-  // Insane Accuracy: wait for audio metadata so exact duration is known
+  // Accurate duration wait
   let exactDurationMs = track.durationMs || 0;
   if (!exactDurationMs && audio) {
     await new Promise(resolve => {
@@ -250,7 +255,7 @@ async function loadTrack(index) {
           exactDurationMs = Math.round(audio.duration * 1000);
           resolve();
         };
-        setTimeout(resolve, 800); // safety fallback
+        setTimeout(resolve, 800);
       }
     });
   }
@@ -326,7 +331,7 @@ async function fetchLyrics(title, artist, durationMs) {
   }
 }
 
-// ──── RENDER SINGLE ACTIVE LINE AS FLUID OCEAN DROPS ────
+// ──── RENDER SINGLE ACTIVE LINE AS FAST-PACED OCEAN DROPS ────
 function renderLineOceanDrops(lineIdx) {
   if (!currentLyrics || !currentLyrics.lines[lineIdx]) return;
   const line = currentLyrics.lines[lineIdx];
@@ -345,7 +350,7 @@ function renderLineOceanDrops(lineIdx) {
     nextLineEl.textContent = '';
   }
 
-  // Active Line: build words with ocean drop animation
+  // Active Line: build words with fast-paced snappy drop
   currentLineEl.innerHTML = '';
   line.words.forEach((w, wIdx) => {
     const wordSpan = document.createElement('span');
@@ -363,7 +368,7 @@ function renderLineOceanDrops(lineIdx) {
   });
 }
 
-// ──── REAL-TIME WORD-BY-WORD SYNC TICK (60/120 FPS) ────
+// ──── FAST-PACED 60/120 FPS REAL-TIME WORD-BY-WORD SYNC ────
 function tick() {
   requestAnimationFrame(tick);
 
@@ -394,13 +399,13 @@ function tick() {
   }
 
   if (targetLineIdx !== -1) {
-    // If line changed, trigger the fluid ocean drop transition
+    // Fast-paced line transition
     if (targetLineIdx !== activeLineIndex) {
       activeLineIndex = targetLineIdx;
       renderLineOceanDrops(activeLineIndex);
     }
 
-    // Word lighting in active line
+    // Word lighting in active line: instantaneous onset & snappy velocity
     const activeLine = lines[activeLineIndex];
     activeLine.words.forEach((w, wIdx) => {
       const wEl = document.getElementById(`wd-${wIdx}`);
@@ -449,6 +454,7 @@ async function handleFiles(fileList) {
     const cleanName = lFile.name.replace(/\.[^/.]+$/, "");
     const parsed = parseLrcText(text, cleanName);
     if (parsed) {
+      body.classList.remove('state-empty');
       currentLyrics = parsed;
       activeLineIndex = 0;
       renderLineOceanDrops(0);
@@ -545,9 +551,11 @@ function parseLrcText(lrcText, title) {
   return { title, artist: "Custom Lyrics", isWordLevel: false, lines: timedLines };
 }
 
-// Inputs
+// File Inputs (both top-bar and landing-card)
 document.getElementById('file-input').addEventListener('change', (e) => handleFiles(e.target.files));
 document.getElementById('folder-input').addEventListener('change', (e) => handleFiles(e.target.files));
+document.getElementById('landing-file-input').addEventListener('change', (e) => handleFiles(e.target.files));
+document.getElementById('landing-folder-input').addEventListener('change', (e) => handleFiles(e.target.files));
 
 // Drag & Drop
 window.addEventListener('dragover', (e) => {
@@ -594,20 +602,11 @@ document.getElementById('queue-close').addEventListener('click', () => {
   queuePanel.classList.remove('open');
 });
 
-// Style Switcher
+// Style Switcher: ONLY SHIP AND VISUAL
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.body.className = `style-${btn.dataset.style}`;
+    document.body.className = `style-${btn.dataset.style} ${playlist.length === 0 ? 'state-empty' : ''}`;
   });
 });
-
-// ──── PRELOADED DEFAULT SONG ────
-playlist.push({
-  title: "Blinding Lights",
-  artist: "The Weeknd",
-  durationMs: 200045,
-  artwork: "https://i.scdn.co/image/ab67616d0000b2738863bc11d2aa12b54f5aeb36"
-});
-loadTrack(0);

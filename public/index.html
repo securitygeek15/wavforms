@@ -7,9 +7,9 @@
   <link rel="icon" type="image/svg+xml" href="/assets/logo_icon.svg">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="style-fisheye-visual">
+<body class="style-ship state-empty">
 
-  <!-- Ambient Fluid Ocean Light Canvas -->
+  <!-- Ambient Fluid Light Canvas -->
   <div class="ocean-water-ambient" id="ocean-ambient"></div>
   <canvas id="ocean-ripple-canvas" class="ocean-canvas"></canvas>
 
@@ -36,18 +36,16 @@
       <!-- Current Song Status Pill -->
       <div class="now-playing-pill" id="track-info-pill">
         <span class="pill-dot" id="playback-status-dot"></span>
-        <span class="pill-title" id="display-title">Drop an audio file to begin</span>
+        <span class="pill-title" id="display-title">Import your songs to start</span>
         <span class="pill-sep" id="pill-sep" style="display:none;">—</span>
         <span class="pill-artist" id="display-artist"></span>
       </div>
     </div>
 
-    <!-- Center: The 4 Display Styles -->
+    <!-- Center: ONLY SHIP AND VISUAL -->
     <nav class="style-nav">
-      <button class="nav-item" data-style="ship">Ship</button>
-      <button class="nav-item" data-style="fisheye">Fisheye</button>
+      <button class="nav-item active" data-style="ship">Ship</button>
       <button class="nav-item" data-style="visual">Visual</button>
-      <button class="nav-item active" data-style="fisheye-visual">Fisheye Visual</button>
     </nav>
 
     <!-- Right Controls -->
@@ -60,13 +58,13 @@
       </div>
 
       <!-- Color Auto-Sync / Palette Picker -->
-      <div class="color-well-wrap" title="Auto Sync Palette Color">
+      <div class="color-well-wrap" title="Palette Accent Color">
         <input type="color" id="palette-color-picker" value="#fb6e90" class="color-picker-input">
         <span class="color-dot" id="color-dot"></span>
       </div>
 
       <!-- File Upload Button -->
-      <label class="action-btn" title="Upload Audio File or Folder">
+      <label class="action-btn" title="Upload Audio File">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m6.8 10.6 5.2 5.2 5.2-5.2"/><path d="M4.5 20h15"/></svg>
         <span>Upload</span>
         <input type="file" id="file-input" accept="audio/*,.lrc,.yrc" multiple style="display:none;">
@@ -94,25 +92,59 @@
   <!-- Ocean Stage: Single Focused Dropping Line Presentation -->
   <main class="ocean-stage" id="ocean-stage">
     
-    <!-- Previous line fading away as water vapor -->
-    <div class="line-container prev-line" id="prev-line-container"></div>
+    <!-- DEDICATED OPENING SCREEN: IMPORT SONGS -->
+    <div class="import-landing" id="import-landing">
+      <div class="import-card">
+        <div class="import-icon-wrap">
+          <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13M9 9l12-2M6 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm12-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+        </div>
+        <h2 class="import-headline">Import Your Songs</h2>
+        <p class="import-subline">Drag and drop audio files or an entire folder to begin real-time word-by-word synchronized playback.</p>
+        
+        <div class="import-buttons">
+          <label class="btn-import primary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/></svg>
+            Select Audio Files
+            <input type="file" id="landing-file-input" accept="audio/*,.lrc,.yrc" multiple style="display:none;">
+          </label>
+          <label class="btn-import secondary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Select Music Folder
+            <input type="file" id="landing-folder-input" webkitdirectory directory multiple style="display:none;">
+          </label>
+        </div>
 
-    <!-- Active Line: Words dropping like droplets in water -->
-    <div class="line-container active-line" id="active-line-container">
-      <div class="ocean-drop-line" id="current-line">
-        <span class="idle-message">Drop your songs here or click Upload</span>
+        <div class="import-format-pills">
+          <span>MP3</span>
+          <span>FLAC</span>
+          <span>WAV</span>
+          <span>M4A</span>
+          <span>OGG</span>
+          <span>LRC</span>
+        </div>
       </div>
     </div>
 
-    <!-- Upcoming line floating underneath like water reflection -->
-    <div class="line-container next-line" id="next-line-container"></div>
+    <!-- PLAYBACK LYRIC VIEWPORT -->
+    <div class="lyric-playback-view" id="lyric-playback-view">
+      <!-- Previous line fading away as water vapor -->
+      <div class="line-container prev-line" id="prev-line-container"></div>
 
-    <!-- Drag & Drop Zone -->
+      <!-- Active Line: Fast-paced words dropping like droplets -->
+      <div class="line-container active-line" id="active-line-container">
+        <div class="ocean-drop-line" id="current-line"></div>
+      </div>
+
+      <!-- Upcoming line floating underneath like water reflection -->
+      <div class="line-container next-line" id="next-line-container"></div>
+    </div>
+
+    <!-- Drag & Drop Overlay Zone -->
     <div class="drop-overlay" id="drop-overlay">
       <div class="drop-content">
         <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="m6.8 10.6 5.2 5.2 5.2-5.2"/><path d="M4.5 20h15"/></svg>
         <h3>Drop Songs or Music Folder</h3>
-        <p>Supports MP3, WAV, FLAC, M4A, OGG, LRC, YRC. Instant millisecond sync.</p>
+        <p>Supports MP3, WAV, FLAC, M4A, OGG, LRC, YRC. Instant fast-paced sync.</p>
       </div>
     </div>
   </main>
