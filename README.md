@@ -1,94 +1,137 @@
 <div align="center">
-  <img src="assets/logo.png" alt="wavforms logo" width="128" height="128" style="border-radius: 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);" />
-  <h1>wavforms</h1>
-  <p><strong>Real-time word-by-word synchronized lyrics on Windows.</strong></p>
-  <p>Inspired by the minimalist luxury of Verci. Light lyrics one word at a time over pitch-black glass.</p>
+  <img src="assets/logo.png" alt="wavforms logo" width="132" height="132" style="border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.85);" />
+  
+  # wavforms
+  
+  <p><strong>Word-by-word real-time synchronized lyrics on Windows.</strong></p>
+  <p>Inspired by the minimalist luxury of Verci. Lighting lyrics one word at a time over pitch-black glass.</p>
 
   <p>
-    <a href="#features">Features</a> •
-    <a href="#display-styles">Styles</a> •
-    <a href="#quick-start">Quick Start</a> •
-    <a href="#how-it-works">Architecture</a> •
-    <a href="#license">License</a>
+    <a href="https://github.com/wavforms/wavforms/releases/latest">
+      <img src="https://img.shields.io/badge/Download-Windows%20Installer%20(.exe)-ffffff?style=for-the-badge&logo=windows&logoColor=black" alt="Download Windows Installer" />
+    </a>
+    <a href="https://github.com/wavforms/wavforms/releases/latest">
+      <img src="https://img.shields.io/badge/Download-Portable%20(.zip)-18181b?style=for-the-badge&logo=zip&logoColor=white" alt="Download Portable" />
+    </a>
   </p>
 
   <p>
+    <img src="https://img.shields.io/badge/Version-v1.0.0-fb6e90?style=flat-square" alt="Version" />
     <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-black?style=flat-square" alt="Platform" />
-    <img src="https://img.shields.io/badge/Lyrics-YRC%20Word--Level-fb6e90?style=flat-square" alt="YRC" />
-    <img src="https://img.shields.io/badge/Node.js-v20+-black?style=flat-square" alt="Node" />
-    <img src="https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square" alt=".NET 10" />
+    <img src="https://img.shields.io/badge/Lyrics-YRC%20Word--Level-ffffff?style=flat-square" alt="YRC" />
+    <img src="https://img.shields.io/badge/Installer%20Size-1.09%20MB-black?style=flat-square" alt="Size" />
     <img src="https://img.shields.io/badge/License-MIT-white?style=flat-square" alt="License" />
   </p>
 </div>
 
 ---
 
-## Overview
+## What is wavforms?
 
-**wavforms** brings the acclaimed lock-screen word-by-word lyric experience from macOS (Verci) to Windows. 
+Most lyrics apps scroll an entire line of text at once. **wavforms** changes that.
 
-Instead of showing walls of static text, **wavforms** features focused single-line **"Drops in an Ocean"** liquid kinetic typography, reading real per-word timestamps (**YRC format**) and lighting each syllable precisely as it is sung by the artist.
+It synchronizes to the singer at the **millisecond word level** (**YRC karaoke format**). Each word drops in like a water droplet and ignites with luminescent light and acoustic ripples the exact moment it is sung.
+
+No subscription, no account, no Spotify clutter. Just drop your songs in and watch the words arrive.
 
 ---
 
-## ✨ Features
+## ⚡ How It Works in 3 Steps
 
-- **Kinetic Word-by-Word Timings**: Reads exact millisecond timestamps (`[start, duration](w_start, w_dur)Word`) powered by the NetEase Cloud Music YRC karaoke engine, with proportional word-length interpolation fallback via LRCLIB.
-- **Ocean Drops Liquid Typography**: Only the current active line is spotlighted at center stage. Words drop in like fluid water droplets with snappy, fast-paced velocity (`0.14s - 0.22s`), blooming into vibrant luminescent acoustic ripples.
-- **Contextual Lyric Emotion Colors**: Dynamic color themes mapped to lyric sentiment (fire burns crimson, water flows cyan, starlight radiates gold, romance glows rose coral).
-- **Import Songs Landing Screen**: Clean, dedicated opening view. Drop any audio files or folders to start. No preloaded clutter.
-- **Instant Offset Calibrator**: Fine-tune sync by `±100ms` on the fly using on-screen buttons or hotkeys `[` and `]`.
-- **Drag & Drop Local Songs & Folders**: Supports MP3, WAV, FLAC, M4A, OGG, and custom `.lrc` / `.yrc` files.
-- **Ambient Fullscreen Mode**: Press **`F`** to turn your monitor or TV into an ambient music centerpiece.
+1. **Download & Run**: Grab the **[1-Click Windows Setup](https://github.com/wavforms/wavforms/releases/latest)** (or Portable ZIP). It sets up a desktop shortcut with the high-res icon.
+2. **Drop Your Music**: Drag and drop any songs or your entire music folder (`.mp3`, `.wav`, `.flac`, `.m4a`, `.ogg`) into the window.
+3. **Enjoy Word-by-Word Lyrics**: `wavforms` automatically extracts the song's title, artist, and embedded cover art, matches the exact studio release, and lights the lyrics in real time.
 
 ---
 
 ## 🎨 The 2 Core Display Styles
 
-Switch styles seamlessly from the top menu bar:
+Switch styles anytime from the clean top menu bar:
 
-| Style | Description |
+| Style | Preview & Feel |
 | :--- | :--- |
-| **Ship** | Words stack into a 3D perspective wall that subtly drifts with camera parallax and ocean depth. |
-| **Visual** | High-velocity word-by-word kinetic lighting paired with floating, color-matched emoji bubbles. |
+| **Ship** | **3D Perspective Drift** — Words stack onto a tilted spatial wall that drifts with gentle oceanic depth and camera parallax. |
+| **Visual** | **Kinetic Typography + Emojis** — Words light up with fast-paced velocity, while 200+ matched words trigger floating, bouncy emoji bubbles (`✨`, `💡`, `🌙`, `❤️`, `👀`, `👶`, `🔥`, `🏙️`). |
 
 ---
 
-## 🚀 Quick Start
+## ✨ Key Highlights
 
-### 1. Prerequisites
-- **Node.js** (v18 or higher)
-- Windows 10 or 11
+- **Ocean Drops Liquid Animation**: No walls of 50 lines. Only the current singing line is spotlighted at center stage. Words drop in like fluid raindrops and bloom with radiant light.
+- **Contextual Emotion Color Themes**: Lyric sentiment determines the lighting mood:
+  - 🔥 *Fire, burn, flame, hot* → Flame Crimson
+  - 💧 *Water, ocean, sea, rain, cold* → Aquatic Cyan
+  - ✨ *Lights, shine, star, blinded* → Radiant Gold
+  - 🌙 *Night, sky, moon, dream* → Electric Violet
+  - ❤️ *Love, heart, kiss, touch* → Vibrant Rose Coral
+- **Insane Lyric Accuracy**: Uses decoded audio buffer durations (`audio.duration * 1000`) to guarantee matching the exact studio release rather than live or cover cuts.
+- **On-the-Fly Sync Tuning**: Track intro have silence? Press **`[`** or **`]`** to fine-tune the vocal sync by `±100ms` instantly.
+- **Custom Lyrics Support**: Drop your own `.lrc` or `.yrc` file directly on a song to use your personal timings.
+- **Ambient Fullscreen**: Press **`F`** to turn your display or TV into an ambient lock-screen centerpiece.
 
-### 2. Launching wavforms
+---
+
+## ⌨️ Shortcuts Cheat Sheet
+
+| Key | Action |
+| :--- | :--- |
+| `Space` | **Play / Pause** |
+| `←` / `→` | **Seek backward / forward 5s** |
+| `[` / `]` | **Fine-tune Lyric Sync** (±100ms offset) |
+| `F` | **Toggle Fullscreen Mode** |
+| `Drag & Drop` | **Import songs, music folder, or custom lyric files** |
+
+---
+
+## 📦 Building From Source (Developers)
+
+If you prefer building from source:
+
 ```bash
+# Clone the repository
 git clone https://github.com/wavforms/wavforms.git
 cd wavforms
 
-# 1-Click Launch (starts server & opens aesthetic desktop app window)
+# 1-Click Launch
 .\run.bat
-```
 
-Or via npm:
-```bash
+# Or run via Node
 npm start
 ```
-Then open `http://localhost:3000`.
+
+To build the GitHub release installer:
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build-release.ps1
+```
+
+The resulting `wavforms-Setup-v1.0.0.exe` and `wavforms-v1.0.0-windows-x64.zip` will be generated in `dist/`.
 
 ---
 
-## ⌨️ Shortcuts & Controls
+## 💬 Frequently Asked Questions
 
-| Action | Key / Action |
-| :--- | :--- |
-| **Play / Pause** | `Space` |
-| **Seek ±5s** | `←` / `→` |
-| **Fine-tune Sync (±100ms)** | `[` / `]` |
-| **Toggle Fullscreen** | `F` |
-| **Import Songs / Folder** | Drag & drop anywhere, or click **Upload** / **Folder** |
+<details>
+<summary><strong>Where do the word-by-word lyrics come from?</strong></summary>
+<br>
+wavforms uses a dual-engine architecture:
+1. <strong>NetEase Cloud Music YRC (Primary)</strong>: Reads true word-level karaoke timestamps (<code>[start, dur](w_start, w_dur)Word</code>) covering over 90% of popular music worldwide.
+2. <strong>LRCLIB API (Fallback)</strong>: High-coverage synced lyric library paired with intelligent character-weighted proportional word interpolation.
+</details>
+
+<details>
+<summary><strong>Can I use it offline with my own lyric files?</strong></summary>
+<br>
+Yes! Drop any <code>.lrc</code> or <code>.yrc</code> file alongside your songs (or onto an active song) and wavforms will immediately parse and synchronize it locally.
+</details>
+
+<details>
+<summary><strong>What formats are supported?</strong></summary>
+<br>
+All standard audio formats: <code>.mp3</code>, <code>.flac</code>, <code>.wav</code>, <code>.m4a</code>, <code>.ogg</code>, and <code>.aac</code>.
+</details>
 
 ---
 
 ## 📄 License
 
-MIT License. See [LICENSE](LICENSE) for details.
+Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
