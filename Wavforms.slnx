@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Wavforms.App/Wavforms.App.csproj" />
+    <Project Path="src/Wavforms.Cli/Wavforms.Cli.csproj" />
+    <Project Path="src/Wavforms.Core/Wavforms.Core.csproj" />
+  </Folder>
+</Solution>

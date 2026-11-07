@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>wavforms — Brand & Aesthetic Preview</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --card: #121215;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f4f4f5;
+      --muted: #71717a;
+      --accent: #ffffff;
+      --highlight: #f43f5e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 24px;
+      overflow-x: hidden;
+    }
+    .header {
+      text-align: center;
+      max-width: 680px;
+      margin-bottom: 56px;
+    }
+    .logo-container {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 28px;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8));
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .logo-container:hover {
+      transform: scale(1.05) translateY(-4px);
+    }
+    h1 {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+      background: linear-gradient(180deg, #ffffff 30%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.subtitle {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      max-width: 1040px;
+      width: 100%;
+      margin-bottom: 60px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #d4d4d8;
+      margin-bottom: 16px;
+    }
+    /* Lyrics Live Demo Component */
+    .lyrics-stage {
+      background: #000000;
+      border-radius: 14px;
+      padding: 28px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+    .word {
+      display: inline-block;
+      margin: 0 4px;
+      color: rgba(255, 255, 255, 0.25);
+      transition: color 0.15s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.2s ease;
+    }
+    .word.active {
+      color: #ffffff;
+      transform: scale(1.08);
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
+    }
+    .word.passed {
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .icon-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 6px;
+      font-size: 20px;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-container">
+      <img src="logo.png" alt="wavforms Logo" style="width:100%; height:100%; border-radius:24px; object-fit:cover; border:1px solid rgba(255,255,255,0.15);" />
+    </div>
+    <h1>wavforms</h1>
+    <p class="subtitle">Real-time word-by-word synchronized lyrics on Windows. Ambient, lightweight, and engineered for pure acoustic elegance.</p>
+  </div>
+
+  <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+    <div class="card" style="text-align: center;">
+      <span class="badge">Primary Logo</span>
+      <div style="width: 140px; height: 140px; margin: 0 auto 16px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+        <img src="logo.png" style="width:100%; height:100%; object-fit:cover;" />
+      </div>
+      <h3>Sculpted Luxury Emblem</h3>
+      <p>Obsidian black matte finish with titanium geometric soundwave 'W'.</p>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <span class="badge">Vector SVG</span>
+      <div style="width: 140px; height: 140px; margin: 0 auto 16px;">
+        <img src="logo.svg" style="width:100%; height:100%;" />
+      </div>
+      <h3>Geometric Soundwave 'W'</h3>
+      <p>Resolution-independent vector for high-DPI scaling and system tray.</p>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <span class="badge">App Icon Squircle</span>
+      <div style="width: 140px; height: 140px; margin: 0 auto 16px; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+        <img src="logo_v2.png" style="width:100%; height:100%; object-fit:cover;" />
+      </div>
+      <h3>Acoustic Glass Curve</h3>
+      <p>Fluid acoustic waveform curve forming the signature 'W' mark.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <span class="badge">Live Demonstration</span>
+      <h3>Word-by-Word Synchronization</h3>
+      <p>Precision millisecond timing powered by NetEase YRC and LRCLIB fallback with proportional word weights.</p>
+      <div class="lyrics-stage" id="stage">
+        <!-- Live lyrics populated by JS -->
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge">Windows Native Architecture</span>
+      <h3>Built for Windows 10 & 11</h3>
+      <p>Seamlessly synchronizes with Spotify, Apple Music, YouTube Music, Tidal, Chrome, Edge, and all media players via native GSMTC.</p>
+      <ul style="list-style: none; font-size: 13.5px; color: #a1a1aa; line-height: 2;">
+        <li>⚡ <b>&lt; 50MB RAM</b> — zero battery drain</li>
+        <li>🪟 <b>Mica & Acrylic</b> transparent desktop floating overlay</li>
+        <li>🔒 <b>Lock Screen & Screensaver</b> ambient mode</li>
+        <li>👁️ <b>Fisheye & 3D Wall</b> GPU shader perspectives</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Live Word-by-Word Demo
+    const sampleLyrics = [
+      { text: "I'm", duration: 250 },
+      { text: "blinded", duration: 550, icon: "✨" },
+      { text: "by", duration: 200 },
+      { text: "the", duration: 180 },
+      { text: "lights", duration: 900, icon: "💡" },
+      { text: "No,", duration: 350 },
+      { text: "I", duration: 180 },
+      { text: "can't", duration: 300 },
+      { text: "sleep", duration: 750, icon: "🌙" },
+      { text: "until", duration: 400 },
+      { text: "I", duration: 200 },
+      { text: "feel", duration: 350 },
+      { text: "your", duration: 450 },
+      { text: "touch", duration: 1100, icon: "❤️" }
+    ];
+
+    const stage = document.getElementById("stage");
+    function renderLine(words) {
+      stage.innerHTML = words.map((w, idx) => `<span class="word" id="w-${idx}">${w.text}</span>`).join(" ");
+    }
+
+    let currentIndex = 0;
+    renderLine(sampleLyrics);
+
+    function playNext() {
+      if (currentIndex >= sampleLyrics.length) {
+        currentIndex = 0;
+        document.querySelectorAll(".word").forEach(el => {
+          el.className = "word";
+          const icon = el.querySelector(".icon-chip");
+          if (icon) icon.remove();
+        });
+        setTimeout(playNext, 1200);
+        return;
+      }
+
+      // Mark past
+      for (let i = 0; i < currentIndex; i++) {
+        const past = document.getElementById(`w-${i}`);
+        if (past) past.className = "word passed";
+      }
+
+      const cur = document.getElementById(`w-${currentIndex}`);
+      if (cur) {
+        cur.className = "word active";
+        if (sampleLyrics[currentIndex].icon && !cur.querySelector(".icon-chip")) {
+          const iconSpan = document.createElement("span");
+          iconSpan.className = "icon-chip";
+          iconSpan.textContent = sampleLyrics[currentIndex].icon;
+          cur.appendChild(iconSpan);
+        }
+      }
+
+      const dur = sampleLyrics[currentIndex].duration;
+      currentIndex++;
+      setTimeout(playNext, dur);
+    }
+
+    setTimeout(playNext, 800);
+  </script>
+</body>
+</html>

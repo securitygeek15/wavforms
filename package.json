@@ -1,0 +1,24 @@
+{
+  "name": "wavforms",
+  "version": "1.0.0",
+  "description": "Real-time word-by-word synchronized lyrics on Windows with fluid audio visualizers and luxury aesthetics",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "app": "powershell -NoProfile -ExecutionPolicy Bypass -File ./run.ps1"
+  },
+  "keywords": [
+    "lyrics",
+    "word-by-word",
+    "verci",
+    "spotify",
+    "audio-player",
+    "windows",
+    "yrc",
+    "karaoke"
+  ],
+  "author": "wavforms",
+  "license": "MIT"
+}
+

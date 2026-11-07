@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>wavforms</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="style-fisheye-visual">
+  <!-- Window Drag Header / Quick Toolbar -->
+  <header class="app-header" data-tauri-drag-region>
+    <div class="brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 256 256" width="20" height="20">
+          <rect x="24" y="56" width="20" height="112" rx="10" fill="#a1a1aa" opacity="0.8" />
+          <rect x="56" y="92" width="20" height="76" rx="10" fill="#a1a1aa" opacity="0.95" />
+          <rect x="88" y="40" width="20" height="144" rx="10" fill="#ffffff" />
+          <rect x="120" y="78" width="16" height="68" rx="8" fill="#ffffff" />
+          <rect x="148" y="40" width="20" height="144" rx="10" fill="#ffffff" />
+          <rect x="180" y="92" width="20" height="76" rx="10" fill="#a1a1aa" opacity="0.95" />
+          <rect x="212" y="56" width="20" height="112" rx="10" fill="#a1a1aa" opacity="0.8" />
+        </svg>
+      </div>
+      <span class="brand-name">wavforms</span>
+      <span class="player-badge" id="player-badge">Windows GSMTC</span>
+    </div>
+
+    <!-- Style Selector Switcher (Same 4 as Verci) -->
+    <div class="style-picker">
+      <button class="style-btn" data-style="ship" title="Ship: 3D perspective wall">Ship</button>
+      <button class="style-btn" data-style="fisheye" title="Fisheye: Real convex lens shader">Fisheye</button>
+      <button class="style-btn" data-style="visual" title="Visual: Inline mapped glyphs">Visual</button>
+      <button class="style-btn active" data-style="fisheye-visual" title="Fisheye Visual: Lens + Glyphs">Fisheye Visual</button>
+    </div>
+
+    <!-- Window Actions -->
+    <div class="win-actions">
+      <button id="btn-pin" class="win-btn active" title="Always on Top">📌</button>
+      <button id="btn-min" class="win-btn" title="Minimize">—</button>
+      <button id="btn-close" class="win-btn" title="Hide to Tray">✕</button>
+    </div>
+  </header>
+
+  <!-- Now Playing Glass Dock -->
+  <section class="now-playing-bar">
+    <div class="artwork-thumb">
+      <img id="track-art" src="assets/logo.png" alt="Album Cover">
+      <div class="art-glow" id="art-glow"></div>
+    </div>
+    <div class="track-meta">
+      <div class="track-title" id="track-title">Blinding Lights</div>
+      <div class="track-artist" id="track-artist">The Weeknd</div>
+    </div>
+    <div class="time-readout">
+      <span id="time-cur">0:45</span> / <span id="time-total">3:20</span>
+    </div>
+  </section>
+
+  <!-- Real-Time Lyric Viewport -->
+  <main class="lyric-stage" id="lyric-stage">
+    <div class="lyrics-viewport" id="lyrics-viewport">
+      <div class="lyrics-track" id="lyrics-track">
+        <!-- Lines and words populated dynamically -->
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+

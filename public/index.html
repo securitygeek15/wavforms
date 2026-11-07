@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>wavforms — word-by-word synchronized lyrics</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo_icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="style-fisheye-visual">
+
+  <!-- Top Minimalist Verci-like Menu Bar -->
+  <header class="menu-bar">
+    <div class="menu-left">
+      <div class="brand">
+        <svg viewBox="0 0 100 100" class="brand-glyph" aria-hidden="true">
+          <defs>
+            <linearGradient id="wave-mark" x1="10" y1="10" x2="70" y2="90" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#e4e4e7"/>
+              <stop offset="100%" stop-color="#a1a1aa"/>
+            </linearGradient>
+          </defs>
+          <rect x="12" y="16" width="68" height="12" rx="6" fill="url(#wave-mark)"/>
+          <rect x="12" y="36" width="52" height="12" rx="6" fill="url(#wave-mark)"/>
+          <rect x="12" y="56" width="76" height="12" rx="6" fill="url(#wave-mark)"/>
+          <rect x="12" y="76" width="36" height="12" rx="6" fill="url(#wave-mark)"/>
+        </svg>
+        <span class="brand-text">wavforms</span>
+      </div>
+
+      <!-- Current Song Watermark / Metadata -->
+      <div class="now-playing-pill" id="track-info-pill">
+        <span class="pill-dot" id="playback-status-dot"></span>
+        <span class="pill-title" id="display-title">Drop an audio file to begin</span>
+        <span class="pill-sep" id="pill-sep" style="display:none;">—</span>
+        <span class="pill-artist" id="display-artist"></span>
+      </div>
+    </div>
+
+    <!-- Center: The 4 Display Styles (Verci) -->
+    <nav class="style-nav">
+      <button class="nav-item" data-style="ship">Ship</button>
+      <button class="nav-item" data-style="fisheye">Fisheye</button>
+      <button class="nav-item" data-style="visual">Visual</button>
+      <button class="nav-item active" data-style="fisheye-visual">Fisheye Visual</button>
+    </nav>
+
+    <!-- Right Controls -->
+    <div class="menu-right">
+      <!-- Auto Palette Color Well -->
+      <div class="color-well-wrap" title="Auto Sync Palette / Accent Color">
+        <input type="color" id="palette-color-picker" value="#fb6e90" class="color-picker-input">
+        <span class="color-dot" id="color-dot"></span>
+      </div>
+
+      <!-- Upload Trigger -->
+      <label class="action-btn upload-trigger" title="Upload Audio File or Folder">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m6.8 10.6 5.2 5.2 5.2-5.2"/><path d="M4.5 20h15"/></svg>
+        <span>Upload</span>
+        <input type="file" id="file-input" accept="audio/*,.lrc,.yrc" multiple style="display:none;">
+      </label>
+
+      <!-- Folder Upload -->
+      <label class="action-btn folder-trigger" title="Open Music Folder">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>Folder</span>
+        <input type="file" id="folder-input" webkitdirectory directory multiple style="display:none;">
+      </label>
+
+      <!-- Playlist Queue -->
+      <button class="action-btn icon-btn" id="btn-queue" title="Queue">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      </button>
+
+      <!-- Ambient Fullscreen -->
+      <button class="action-btn icon-btn" id="btn-fs" title="Fullscreen (F)">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Monolithic Lyric Stage -->
+  <main class="lyric-stage" id="lyric-stage">
+    <div class="lyrics-viewport" id="lyrics-viewport">
+      <div class="lyrics-track" id="lyrics-track">
+        <!-- Live synced lyrics stream here -->
+      </div>
+    </div>
+
+    <!-- Drag & Drop Overlay Zone -->
+    <div class="drop-overlay" id="drop-overlay">
+      <div class="drop-content">
+        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="m6.8 10.6 5.2 5.2 5.2-5.2"/><path d="M4.5 20h15"/></svg>
+        <h3>Drop Songs or Music Folder</h3>
+        <p>Supports MP3, WAV, FLAC, M4A, OGG, LRC, YRC. Instantly matches lyrics word-by-word.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Minimalist Hover Scrubber & Playback HUD -->
+  <footer class="minimal-hud" id="minimal-hud">
+    <button class="hud-play-btn" id="hud-play" title="Play/Pause (Space)">
+      <svg id="icon-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="icon-pause" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+    
+    <span class="hud-time" id="hud-cur">0:00</span>
+    
+    <div class="hud-scrubber-track" id="hud-track">
+      <div class="hud-scrubber-fill" id="hud-fill"></div>
+    </div>
+
+    <span class="hud-time" id="hud-dur">0:00</span>
+  </footer>
+
+  <!-- Clean Queue Slide-Out Panel -->
+  <aside class="queue-panel" id="queue-panel">
+    <div class="queue-header">
+      <span>Queue (<span id="queue-num">0</span>)</span>
+      <button class="queue-close" id="queue-close">✕</button>
+    </div>
+    <div class="queue-items" id="queue-items">
+      <div class="queue-empty">Drop music files or a folder to build your playlist.</div>
+    </div>
+  </aside>
+
+  <!-- Hidden Native Audio -->
+  <audio id="audio" preload="auto"></audio>
+
+  <!-- ID3 Tag Parser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
