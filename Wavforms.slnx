@@ -3,5 +3,6 @@
     <Project Path="src/Wavforms.App/Wavforms.App.csproj" />
     <Project Path="src/Wavforms.Cli/Wavforms.Cli.csproj" />
     <Project Path="src/Wavforms.Core/Wavforms.Core.csproj" />
+    <Project Path="src/Wavforms.Launcher/Wavforms.Launcher.csproj" />
   </Folder>
 </Solution>

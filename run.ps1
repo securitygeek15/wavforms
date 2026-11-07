@@ -1,8 +1,8 @@
 # Check if server is already running
 $running = $false
 try {
-    $res = Invoke-WebRequest -Uri "http://localhost:3000" -UseBasicParsing -TimeoutSec 1 -ErrorAction SilentlyContinue
-    if ($res -and $res.StatusCode -eq 200) {
+    $res = Invoke-RestMethod -Uri "http://localhost:3456/api/ping" -TimeoutSec 1 -ErrorAction SilentlyContinue
+    if ($res -and $res.app -eq "wavforms") {
         $running = $true
     }
 } catch { }
@@ -14,7 +14,7 @@ if (-not $running) {
 
 $edgePath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 $chromePath = "C:\Program Files\Google\Chrome\Application\chrome.exe"
-$url = "http://localhost:3000"
+$url = "http://localhost:3456"
 
 if (Test-Path $edgePath) {
     Start-Process -FilePath $edgePath -ArgumentList "--app=$url", "--window-size=1180,780"

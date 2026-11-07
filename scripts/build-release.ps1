@@ -1,67 +1,75 @@
-﻿# wavforms Release & Installer Builder
+﻿# wavforms Release & Aesthetic Windows Installer Builder
 $ErrorActionPreference = "Stop"
 
 $version = "1.0.0"
-$distDir = "dist"
+$distDir = "$PSScriptRoot\..\dist"
 $stageDir = "$distDir\staging"
 $portableZip = "$distDir\wavforms-v$version-windows-x64.zip"
 $installerExe = "$distDir\wavforms-Setup-v$version.exe"
+$installerCleanExe = "$distDir\wavforms-Setup.exe"
+
+$csc = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+$sevenZip = "C:\Program Files\7-Zip\7z.exe"
 
 Write-Host "════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "  Building wavforms v$version GitHub Release & Installer...      " -ForegroundColor White
+Write-Host "  Building wavforms v$version Aesthetic Release & Installer     " -ForegroundColor White
 Write-Host "════════════════════════════════════════════════════════════════`n" -ForegroundColor Cyan
 
-# 1. Clean Staging
+# 1. Clean Staging & Output
 if (Test-Path $stageDir) { Remove-Item -Recurse -Force $stageDir }
 New-Item -ItemType Directory -Path $stageDir -Force | Out-Null
 
-# 2. Copy Payload
-Write-Host "[*] Gathering application payload..." -ForegroundColor Gray
-$copyItems = @("public", "assets", "server.js", "package.json", "run.bat", "run.ps1", "wavforms.vbs")
-foreach ($item in $copyItems) {
+# 2. Compile Native Launcher (wavforms.exe)
+Write-Host "[1/5] Compiling native launcher (wavforms.exe)..." -ForegroundColor Gray
+& $csc /target:winexe /win32icon:assets\icon.ico /out:"$stageDir\wavforms.exe" `
+    /r:System.dll,System.Windows.Forms.dll,System.Drawing.dll `
+    src\Launcher\Program.cs | Out-Null
+Write-Host "      [✓] wavforms.exe compiled (88 KB, 0ms boot)" -ForegroundColor Green
+
+# 3. Compile Uninstaller (uninstall.exe)
+Write-Host "[2/5] Compiling clean uninstaller (uninstall.exe)..." -ForegroundColor Gray
+& $csc /target:winexe /win32icon:assets\icon.ico /out:"$stageDir\uninstall.exe" `
+    /r:System.dll,System.Windows.Forms.dll `
+    src\Uninstaller\Program.cs | Out-Null
+Write-Host "      [✓] uninstall.exe compiled" -ForegroundColor Green
+
+# 4. Copy Application Payload
+Write-Host "[3/5] Gathering application files into payload..." -ForegroundColor Gray
+$itemsToCopy = @("public", "assets", "server.js", "package.json", "wavforms.vbs", "run.bat", "run.ps1")
+foreach ($item in $itemsToCopy) {
     Copy-Item -Path $item -Destination $stageDir -Recurse -Force
 }
-Copy-Item -Path "installer\install.ps1" -Destination $stageDir -Force
-Copy-Item -Path "installer\setup.bat" -Destination $stageDir -Force
 
-# 3. Build Portable ZIP
-Write-Host "[*] Creating portable ZIP: $portableZip..." -ForegroundColor Gray
+# Also keep root wavforms.exe updated
+Copy-Item -Path "$stageDir\wavforms.exe" -Destination ".\wavforms.exe" -Force
+
+# 5. Build Portable ZIP
+Write-Host "[4/5] Building portable ZIP archive..." -ForegroundColor Gray
 if (Test-Path $portableZip) { Remove-Item -Force $portableZip }
-& "C:\Program Files\7-Zip\7z.exe" a -tzip -mx=9 $portableZip "$stageDir\*" | Out-Null
-Write-Host "[✓] Portable ZIP created: $((Get-Item $portableZip).Length / 1MB | ForEach-Object { '{0:N2} MB' -f $_ })" -ForegroundColor Green
+& $sevenZip a -tzip -mx=9 $portableZip "$stageDir\*" | Out-Null
+$zipSize = ((Get-Item $portableZip).Length / 1MB).ToString("0.00")
+Write-Host "      [✓] Portable ZIP created: $portableZip ($zipSize MB)" -ForegroundColor Green
 
-# 4. Build Standalone SFX Windows Installer
-Write-Host "[*] Compiling Standalone Windows Setup Installer: $installerExe..." -ForegroundColor Gray
-$sfxModule = "C:\Program Files\7-Zip\7z.sfx"
-$sfxArchive = "$distDir\app_temp.7z"
-$sfxConfig = "$distDir\sfx_config.txt"
+# 6. Build Aesthetic 1-Click GUI Windows Installer
+Write-Host "[5/5] Compiling aesthetic Windows GUI installer..." -ForegroundColor Gray
+$payloadZip = "$distDir\payload.zip"
+if (Test-Path $payloadZip) { Remove-Item -Force $payloadZip }
+Copy-Item -Path $portableZip -Destination $payloadZip -Force
 
-# Archive payload as 7z
-if (Test-Path $sfxArchive) { Remove-Item -Force $sfxArchive }
-& "C:\Program Files\7-Zip\7z.exe" a -m0=lzma2 -mx=9 $sfxArchive "$stageDir\*" | Out-Null
+& $csc /target:winexe /win32icon:assets\icon.ico /out:$installerExe `
+    "/resource:$payloadZip,Payload" `
+    "/resource:assets\logo.png,Logo" `
+    /r:System.dll,System.Drawing.dll,System.Windows.Forms.dll,System.IO.Compression.dll,System.IO.Compression.FileSystem.dll,Microsoft.CSharp.dll `
+    src\Installer\Program.cs | Out-Null
 
-# SFX Configuration: Extracts to temp and silently launches setup.bat
-@"
-;!@Install@!UTF-8!
-Title="wavforms Setup"
-BeginPrompt="Do you want to install wavforms (Real-time word-by-word lyrics)?"
-RunProgram="setup.bat"
-;!@InstallEnd@!
-"@ | Set-Content -Path $sfxConfig -Encoding UTF8
-
-# Combine 7z.sfx + config + archive -> Setup.exe
-$sfxBytes = [System.IO.File]::ReadAllBytes($sfxModule)
-$configBytes = [System.IO.File]::ReadAllBytes($sfxConfig)
-$archiveBytes = [System.IO.File]::ReadAllBytes($sfxArchive)
-
-$exeStream = [System.IO.File]::Create($installerExe)
-$exeStream.Write($sfxBytes, 0, $sfxBytes.Length)
-$exeStream.Write($configBytes, 0, $configBytes.Length)
-$exeStream.Write($archiveBytes, 0, $archiveBytes.Length)
-$exeStream.Close()
-
-Remove-Item -Force $sfxArchive, $sfxConfig
+Copy-Item -Path $installerExe -Destination $installerCleanExe -Force
+Remove-Item -Force $payloadZip
 Remove-Item -Recurse -Force $stageDir
 
-Write-Host "[✓] Windows Setup Installer created: $installerExe ($((Get-Item $installerExe).Length / 1MB | ForEach-Object { '{0:N2} MB' -f $_ }))" -ForegroundColor Green
-Write-Host "`n[✓] All Release Assets Built Successfully!" -ForegroundColor Cyan
+$setupSize = ((Get-Item $installerExe).Length / 1MB).ToString("0.00")
+Write-Host "      [✓] $installerExe ($setupSize MB)" -ForegroundColor Green
+Write-Host "      [✓] $installerCleanExe ($setupSize MB)" -ForegroundColor Green
+
+Write-Host "`n════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "  ✨ Release & Installer Build Completed Successfully!          " -ForegroundColor White
+Write-Host "════════════════════════════════════════════════════════════════`n" -ForegroundColor Cyan

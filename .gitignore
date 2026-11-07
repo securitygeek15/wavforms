@@ -3,6 +3,8 @@ node_modules/
 package-lock.json
 
 # .NET Build Artifacts
+**/bin/
+**/obj/
 bin/
 obj/
 *.user
