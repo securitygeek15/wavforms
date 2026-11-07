@@ -9,43 +9,59 @@ const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-// Regex patterns discovered from reverse-engineering Verci
-const FEAT_REGEX = /\((feat|ft|with|featuring)[.\s][^)]*\)/gi;
-const FROM_REGEX = /\((from|theme from|music from)[^)]*\)/gi;
-const REMASTER_REGEX = /\((\d{4} )?(re-?master(ed)?|deluxe|bonus|explicit|single|album|radio)[^)]*\)/gi;
-const SUFFIX_REGEX = /\s-\s.*(remix|version|edit|mix|remaster|acoustic|live|instrumental).*$/gi;
+// Aggressive cleaning to ensure 100% accurate search queries
+function cleanTitle(raw) {
+  if (!raw) return '';
+  let s = raw;
+  // Strip file extension
+  s = s.replace(/\.(mp3|wav|flac|m4a|ogg|aac)$/i, '');
+  // Replace underscores and dots with space
+  s = s.replace(/[_\.]+/g, ' ');
+  // Strip track numbers at start like "01 - ", "1. ", "01 "
+  s = s.replace(/^\d+[\s\.\-]+/g, '');
+  // Strip junk video/audio tags
+  s = s.replace(/\((official\s*(music\s*)?video|official\s*audio|lyric\s*video|audio|lyrics|visualizer|hq|hd|4k|320kbps)\)/gi, '');
+  s = s.replace(/\[(official\s*(music\s*)?video|official\s*audio|lyric\s*video|audio|lyrics|visualizer|hq|hd|4k|320kbps)\]/gi, '');
+  // Strip featured artists in title
+  s = s.replace(/\((feat|ft|with|featuring)[.\s][^)]*\)/gi, '');
+  s = s.replace(/\[(feat|ft|with|featuring)[.\s][^\]]*\]/gi, '');
+  s = s.replace(/\((from|theme from|music from)[^)]*\)/gi, '');
+  s = s.replace(/\((\d{4} )?(re-?master(ed)?|deluxe|bonus|explicit|single|album|radio)[^)]*\)/gi, '');
+  s = s.replace(/\s-\s.*(remix|version|edit|mix|remaster|acoustic|live|instrumental).*$/gi, '');
+  return s.trim();
+}
+
+function cleanArtist(raw) {
+  if (!raw) return '';
+  let s = raw;
+  s = s.replace(/\.(mp3|wav|flac|m4a|ogg|aac)$/i, '');
+  s = s.replace(/[_\.]+/g, ' ');
+  return s.trim();
+}
 
 // YRC line and word regex: [44190,5040](44190,180,0)You (44370,180,0)can
 const YRC_LINE_REGEX = /^\[(\d+),(\d+)\](.*)$/;
 const YRC_WORD_REGEX = /\((\d+),(\d+),\d+\)([^\(]*)/g;
 const LRC_REGEX = /\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
 
-function cleanTitle(raw) {
-  if (!raw) return '';
-  return raw
-    .replace(FEAT_REGEX, '')
-    .replace(FROM_REGEX, '')
-    .replace(REMASTER_REGEX, '')
-    .replace(SUFFIX_REGEX, '')
-    .trim();
-}
-
 // In-memory lyric cache
 const lyricCache = new Map();
 
 async function fetchLyrics(rawTitle, rawArtist, expectedDurationMs = 0) {
   const title = cleanTitle(rawTitle);
-  const artist = (rawArtist || '').trim();
+  const artist = cleanArtist(rawArtist);
   const cacheKey = `${title.toLowerCase()} - ${artist.toLowerCase()}`;
 
   if (lyricCache.has(cacheKey)) {
     return lyricCache.get(cacheKey);
   }
 
-  // 1. Primary Source: NetEase Cloud Music (NCM) YRC Word-by-Word
+  console.log(`[*] Searching lyrics for: "${title}" by "${artist}" (Expected duration: ${expectedDurationMs}ms)`);
+
+  // 1. Primary: NetEase Cloud Music (NCM) YRC Word-by-Word
   try {
     const query = `${title} ${artist}`.trim();
-    const searchUrl = `https://music.163.com/api/search/get?s=${encodeURIComponent(query)}&type=1&offset=0&limit=5`;
+    const searchUrl = `https://music.163.com/api/search/get?s=${encodeURIComponent(query)}&type=1&offset=0&limit=8`;
     const searchRes = await fetch(searchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -58,16 +74,19 @@ async function fetchLyrics(rawTitle, rawArtist, expectedDurationMs = 0) {
       const songs = searchData?.result?.songs || [];
 
       if (songs.length > 0) {
+        // Pick best candidate based on duration match
         let bestSong = songs[0];
         let minDiff = Infinity;
 
         if (expectedDurationMs > 0) {
           for (const s of songs) {
-            const diff = Math.abs((s.duration || 0) - expectedDurationMs);
+            const songDur = s.duration || 0;
+            const diff = Math.abs(songDur - expectedDurationMs);
             if (diff < minDiff) {
               minDiff = diff;
               bestSong = s;
-              if (diff <= 3500) break;
+              // If within 1.5 seconds, exact match found!
+              if (diff <= 1500) break;
             }
           }
         }
@@ -87,6 +106,7 @@ async function fetchLyrics(rawTitle, rawArtist, expectedDurationMs = 0) {
           if (lyricData?.yrc?.lyric) {
             const parsed = parseYrc(lyricData.yrc.lyric, title, artist);
             if (parsed && parsed.lines && parsed.lines.length > 0) {
+              console.log(`[✓] Found exact YRC word-level lyrics (${parsed.lines.length} lines)`);
               lyricCache.set(cacheKey, parsed);
               return parsed;
             }
@@ -96,6 +116,7 @@ async function fetchLyrics(rawTitle, rawArtist, expectedDurationMs = 0) {
           if (lyricData?.lrc?.lyric) {
             const parsed = parseLrcWithInterpolation(lyricData.lrc.lyric, title, artist);
             if (parsed && parsed.lines && parsed.lines.length > 0) {
+              console.log(`[✓] Found NCM LRC synced lyrics (${parsed.lines.length} lines)`);
               lyricCache.set(cacheKey, parsed);
               return parsed;
             }
@@ -122,6 +143,7 @@ async function fetchLyrics(rawTitle, rawArtist, expectedDurationMs = 0) {
       if (lrcData?.syncedLyrics) {
         const parsed = parseLrcWithInterpolation(lrcData.syncedLyrics, title, artist);
         if (parsed && parsed.lines && parsed.lines.length > 0) {
+          console.log(`[✓] Found LRCLIB synced lyrics (${parsed.lines.length} lines)`);
           lyricCache.set(cacheKey, parsed);
           return parsed;
         }
@@ -242,7 +264,6 @@ function parseLrcWithInterpolation(rawLrc, title, artist) {
   return result;
 }
 
-// MIME types for static assets
 const MIME_TYPES = {
   '.html': 'text/html',
   '.css': 'text/css',
@@ -261,7 +282,6 @@ const server = http.createServer(async (req, res) => {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
   const pathname = reqUrl.pathname;
 
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -272,7 +292,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // API: Fetch Lyrics
   if (pathname === '/api/lyrics') {
     const title = reqUrl.searchParams.get('title') || '';
     const artist = reqUrl.searchParams.get('artist') || '';
@@ -284,7 +303,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Static File Serving
   let filePath = path.join(PUBLIC_DIR, pathname === '/' ? 'index.html' : pathname);
   if (pathname.startsWith('/assets/')) {
     filePath = path.join(__dirname, pathname);

@@ -1,28 +1,81 @@
 // ═══════════════════════════════════════════════════════════════
-//   wavforms — Verci-Aesthetic Word-by-Word Synchronized Engine
+//   wavforms — "Drops in an Ocean" Word-by-Word Lyric Engine
 // ═══════════════════════════════════════════════════════════════
 
-// Mapped vocabulary tokens to SF Symbols / Glyphs
-const ICON_MAP = {
-  "love": "❤️", "heart": "❤️", "broken": "💔", "kiss": "💋",
-  "light": "💡", "lights": "💡", "blinded": "✨", "shine": "✨",
-  "sun": "☀️", "moon": "🌙", "star": "⭐", "stars": "✨", "sky": "🌌",
-  "night": "🌃", "city": "🏙️", "cold": "❄️", "empty": "🫙",
-  "run": "🏃", "running": "🏃", "walk": "🚶", "walking": "🚶",
-  "sleep": "🌙", "wake": "⏰", "eyes": "👁️", "look": "👀",
-  "touch": "✨", "baby": "👶", "car": "🏎️", "road": "🛣️",
-  "overdrive": "⚡", "time": "⏳", "phone": "📱", "fire": "🔥",
-  "rain": "🌧️", "storm": "⛈️", "sea": "🌊", "ocean": "🌊", "drowning": "🌊",
-  "dance": "💃", "dancing": "🕺", "music": "🎵", "song": "🎶"
+// Rich vocabulary mapping with custom emotion colors and emojis
+const VOCABULARY = {
+  // Love & Romance (Rose / Coral)
+  "love": { icon: "❤️", color: "#fb7185" },
+  "heart": { icon: "❤️", color: "#fb7185" },
+  "broken": { icon: "💔", color: "#f43f5e" },
+  "kiss": { icon: "💋", color: "#f43f5e" },
+  "touch": { icon: "✨", color: "#f472b6" },
+  "baby": { icon: "👶", color: "#f472b6" },
+  "sweet": { icon: "🍭", color: "#fb7185" },
+  "crying": { icon: "😢", color: "#60a5fa" },
+  "cry": { icon: "😢", color: "#60a5fa" },
+  "tears": { icon: "💧", color: "#38bdf8" },
+
+  // Light, Starlight & Euphoria (Amber / Gold / Violet)
+  "light": { icon: "💡", color: "#facc15" },
+  "lights": { icon: "💡", color: "#facc15" },
+  "blinded": { icon: "✨", color: "#fbbf24" },
+  "shine": { icon: "✨", color: "#fbbf24" },
+  "sun": { icon: "☀️", color: "#f59e0b" },
+  "star": { icon: "⭐", color: "#fbbf24" },
+  "stars": { icon: "✨", color: "#e879f9" },
+  "sky": { icon: "🌌", color: "#c084fc" },
+  "night": { icon: "🌃", color: "#a855f7" },
+  "moon": { icon: "🌙", color: "#e879f9" },
+  "dream": { icon: "💭", color: "#c084fc" },
+
+  // Water, Ocean & Cold (Aquatic Cyan / Glacier Blue)
+  "water": { icon: "💧", color: "#00f2fe" },
+  "ocean": { icon: "🌊", color: "#00f2fe" },
+  "sea": { icon: "🌊", color: "#38bdf8" },
+  "wave": { icon: "🌊", color: "#38bdf8" },
+  "drowning": { icon: "🌊", color: "#00f2fe" },
+  "rain": { icon: "🌧️", color: "#38bdf8" },
+  "storm": { icon: "⛈️", color: "#60a5fa" },
+  "cold": { icon: "❄️", color: "#a5f3fc" },
+  "ice": { icon: "❄️", color: "#a5f3fc" },
+  "empty": { icon: "🫙", color: "#94a3b8" },
+
+  // Fire, Heat & Energy (Flame Crimson / Orange)
+  "fire": { icon: "🔥", color: "#ff453a" },
+  "flame": { icon: "🔥", color: "#ff453a" },
+  "burn": { icon: "🔥", color: "#ff5e3a" },
+  "hot": { icon: "🔥", color: "#ff9f0a" },
+  "overdrive": { icon: "⚡", color: "#fbbf24" },
+  "wild": { icon: "⚡", color: "#ff9f0a" },
+
+  // Movement, Speed & Action (Emerald / Neon)
+  "run": { icon: "🏃", color: "#34d399" },
+  "running": { icon: "🏃", color: "#34d399" },
+  "walk": { icon: "🚶", color: "#10b981" },
+  "walking": { icon: "🚶", color: "#10b981" },
+  "car": { icon: "🏎️", color: "#34d399" },
+  "drive": { icon: "🚗", color: "#34d399" },
+  "road": { icon: "🛣️", color: "#10b981" },
+  "city": { icon: "🏙️", color: "#38bdf8" },
+  "sleep": { icon: "🌙", color: "#c084fc" },
+  "wake": { icon: "⏰", color: "#facc15" },
+  "time": { icon: "⏳", color: "#facc15" },
+  "phone": { icon: "📱", color: "#38bdf8" },
+  "eyes": { icon: "👁️", color: "#60a5fa" },
+  "look": { icon: "👀", color: "#60a5fa" },
+  "dance": { icon: "💃", color: "#fb7185" },
+  "music": { icon: "🎵", color: "#a855f7" },
+  "song": { icon: "🎶", color: "#a855f7" }
 };
 
-function resolveWordIcon(raw) {
-  if (!raw) return null;
-  const clean = raw.trim().replace(/[.,!?:;()"'`\-]/g, '').toLowerCase();
-  if (ICON_MAP[clean]) return ICON_MAP[clean];
+function getWordMeta(rawWord) {
+  if (!rawWord) return null;
+  const clean = rawWord.trim().replace(/[.,!?:;()"'`\-]/g, '').toLowerCase();
+  if (VOCABULARY[clean]) return VOCABULARY[clean];
   if (clean.endsWith('ing') && clean.length > 4) {
     const root = clean.slice(0, -3);
-    if (ICON_MAP[root]) return ICON_MAP[root];
+    if (VOCABULARY[root]) return VOCABULARY[root];
   }
   return null;
 }
@@ -31,7 +84,8 @@ function resolveWordIcon(raw) {
 let playlist = [];
 let currentTrackIndex = -1;
 let currentLyrics = null;
-let lastActiveLineIdx = -1;
+let activeLineIndex = -1;
+let lyricOffsetMs = 0; // Millisecond fine-tuning sync offset
 let isSeeking = false;
 
 // DOM
@@ -49,16 +103,29 @@ const displayTitle = document.getElementById('display-title');
 const displayArtist = document.getElementById('display-artist');
 const pillSep = document.getElementById('pill-sep');
 const statusDot = document.getElementById('playback-status-dot');
-const lyricsTrack = document.getElementById('lyrics-track');
+const currentLineEl = document.getElementById('current-line');
+const prevLineEl = document.getElementById('prev-line-container');
+const nextLineEl = document.getElementById('next-line-container');
+const offsetDisplay = document.getElementById('offset-display');
+
 const colorPicker = document.getElementById('palette-color-picker');
 const colorDot = document.getElementById('color-dot');
-
 const queuePanel = document.getElementById('queue-panel');
 const queueItems = document.getElementById('queue-items');
 const queueNum = document.getElementById('queue-num');
 const dropOverlay = document.getElementById('drop-overlay');
 
-// ──── PLAYBACK & HUD ────
+// ──── OFFSET CALIBRATION (Insane Accuracy) ────
+function updateOffset(deltaMs) {
+  lyricOffsetMs += deltaMs;
+  const sec = (lyricOffsetMs / 1000).toFixed(1);
+  offsetDisplay.textContent = `${sec >= 0 ? '+' : ''}${sec}s`;
+}
+
+document.getElementById('btn-offset-minus').addEventListener('click', () => updateOffset(-100));
+document.getElementById('btn-offset-plus').addEventListener('click', () => updateOffset(100));
+
+// ──── PLAYBACK CONTROLS ────
 function togglePlayback() {
   if (audio.paused) {
     audio.play().then(() => updatePlayState(true)).catch(() => updatePlayState(false));
@@ -105,7 +172,7 @@ function formatTime(sec) {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-// Keyboard shortcuts (Verci / Mac feel)
+// Keyboard shortcuts
 window.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT') return;
   if (e.code === 'Space') {
@@ -115,12 +182,15 @@ window.addEventListener('keydown', (e) => {
     audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 5);
   } else if (e.code === 'ArrowLeft') {
     audio.currentTime = Math.max(0, audio.currentTime - 5);
+  } else if (e.key === '[' || e.key === '{') {
+    updateOffset(-100);
+  } else if (e.key === ']' || e.key === '}') {
+    updateOffset(100);
   } else if (e.key === 'f' || e.key === 'F') {
     toggleFullscreen();
   }
 });
 
-// Fullscreen
 function toggleFullscreen() {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
@@ -130,14 +200,14 @@ function toggleFullscreen() {
 }
 document.getElementById('btn-fs').addEventListener('click', toggleFullscreen);
 
-// Palette Picker
+// Color Well
 colorPicker.addEventListener('input', (e) => {
   const c = e.target.value;
   document.documentElement.style.setProperty('--color-highlight', c);
   colorDot.style.background = c;
 });
 
-// ──── TRACK LOADING & METADATA ────
+// ──── TRACK LOADING & ACCURATE DURATION SYNC ────
 async function loadTrack(index) {
   if (index < 0 || index >= playlist.length) return;
   currentTrackIndex = index;
@@ -157,27 +227,46 @@ async function loadTrack(index) {
   document.title = `${track.title} • wavforms`;
   renderQueue();
 
+  currentLineEl.innerHTML = '<span class="idle-message">Synchronizing words...</span>';
+  prevLineEl.textContent = '';
+  nextLineEl.textContent = '';
+  activeLineIndex = -1;
+
   if (track.file) {
     audio.src = URL.createObjectURL(track.file);
   } else if (track.url) {
     audio.src = track.url;
   }
 
-  // Load lyrics
-  lyricsTrack.innerHTML = '<div class="line active">Searching synchronized lyrics...</div>';
+  // Insane Accuracy: wait for audio metadata so exact duration is known
+  let exactDurationMs = track.durationMs || 0;
+  if (!exactDurationMs && audio) {
+    await new Promise(resolve => {
+      if (audio.readyState >= 1) {
+        exactDurationMs = Math.round(audio.duration * 1000);
+        resolve();
+      } else {
+        audio.onloadedmetadata = () => {
+          exactDurationMs = Math.round(audio.duration * 1000);
+          resolve();
+        };
+        setTimeout(resolve, 800); // safety fallback
+      }
+    });
+  }
 
+  // Fetch lyrics with exact duration
   if (track.customLyrics) {
     currentLyrics = track.customLyrics;
-    renderLyricsTree(currentLyrics);
   } else {
-    const lyrics = await fetchLyrics(track.title, track.artist, track.durationMs || 0);
-    if (lyrics && lyrics.lines && lyrics.lines.length > 0) {
-      currentLyrics = lyrics;
-      renderLyricsTree(lyrics);
-    } else {
-      currentLyrics = null;
-      lyricsTrack.innerHTML = '<div class="line active">No synchronized lyrics available for this song.</div>';
-    }
+    currentLyrics = await fetchLyrics(track.title, track.artist, exactDurationMs);
+  }
+
+  if (currentLyrics && currentLyrics.lines && currentLyrics.lines.length > 0) {
+    activeLineIndex = 0;
+    renderLineOceanDrops(0);
+  } else {
+    currentLineEl.innerHTML = '<span class="idle-message">No synchronized lyrics found for this song</span>';
   }
 
   audio.play().then(() => updatePlayState(true)).catch(() => updatePlayState(false));
@@ -223,7 +312,7 @@ function extractArtworkColor(imgUrl) {
   };
 }
 
-// ──── LYRIC API & PARSER ────
+// ──── LYRICS API ────
 async function fetchLyrics(title, artist, durationMs) {
   try {
     const url = `/api/lyrics?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist || '')}&duration=${durationMs}`;
@@ -237,33 +326,49 @@ async function fetchLyrics(title, artist, durationMs) {
   }
 }
 
-function renderLyricsTree(lyrics) {
-  lastActiveLineIdx = -1;
-  lyricsTrack.innerHTML = '';
+// ──── RENDER SINGLE ACTIVE LINE AS FLUID OCEAN DROPS ────
+function renderLineOceanDrops(lineIdx) {
+  if (!currentLyrics || !currentLyrics.lines[lineIdx]) return;
+  const line = currentLyrics.lines[lineIdx];
 
-  lyrics.lines.forEach((line, lIdx) => {
-    const lineEl = document.createElement('div');
-    lineEl.className = 'line';
-    lineEl.id = `line-${lIdx}`;
+  // Previous line
+  if (lineIdx > 0) {
+    prevLineEl.textContent = currentLyrics.lines[lineIdx - 1].text;
+  } else {
+    prevLineEl.textContent = '';
+  }
 
-    line.words.forEach((w, wIdx) => {
-      const wordEl = document.createElement('span');
-      wordEl.className = 'word';
-      wordEl.id = `w-${lIdx}-${wIdx}`;
-      wordEl.textContent = w.word;
-      lineEl.appendChild(wordEl);
-    });
+  // Next line (reflection)
+  if (lineIdx + 1 < currentLyrics.lines.length) {
+    nextLineEl.textContent = currentLyrics.lines[lineIdx + 1].text;
+  } else {
+    nextLineEl.textContent = '';
+  }
 
-    lyricsTrack.appendChild(lineEl);
+  // Active Line: build words with ocean drop animation
+  currentLineEl.innerHTML = '';
+  line.words.forEach((w, wIdx) => {
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'word-drop just-dropped';
+    wordSpan.id = `wd-${wIdx}`;
+    wordSpan.textContent = w.word;
+
+    // Attach contextual emotion/aesthetic color
+    const meta = getWordMeta(w.word);
+    if (meta && meta.color) {
+      wordSpan.style.setProperty('--word-active-color', meta.color);
+    }
+
+    currentLineEl.appendChild(wordSpan);
   });
 }
 
-// ──── 60/120 FPS REAL-TIME WORD-BY-WORD SYNC ────
+// ──── REAL-TIME WORD-BY-WORD SYNC TICK (60/120 FPS) ────
 function tick() {
   requestAnimationFrame(tick);
 
   const curSec = audio.currentTime;
-  const curMs = curSec * 1000;
+  const curMs = (curSec * 1000) + lyricOffsetMs;
   const durSec = audio.duration || 0;
 
   hudCur.textContent = formatTime(curSec);
@@ -277,59 +382,52 @@ function tick() {
   if (!currentLyrics || !currentLyrics.lines) return;
 
   const lines = currentLyrics.lines;
-  let activeLineIdx = -1;
+  let targetLineIdx = -1;
 
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i];
     const nextStart = (i + 1 < lines.length) ? lines[i + 1].startMs : Infinity;
     if (curMs >= l.startMs && curMs < nextStart) {
-      activeLineIdx = i;
+      targetLineIdx = i;
       break;
     }
   }
 
-  if (activeLineIdx !== -1) {
-    if (activeLineIdx !== lastActiveLineIdx) {
-      lastActiveLineIdx = activeLineIdx;
-
-      const activeEl = document.getElementById(`line-${activeLineIdx}`);
-      if (activeEl) {
-        const stageH = lyricsTrack.parentElement.clientHeight;
-        const offset = activeEl.offsetTop - (stageH / 2) + 30;
-        lyricsTrack.style.transform = `translateY(-${Math.max(0, offset)}px)`;
-      }
-
-      lines.forEach((_, idx) => {
-        const el = document.getElementById(`line-${idx}`);
-        if (!el) return;
-        if (idx === activeLineIdx) el.className = 'line active';
-        else if (idx < activeLineIdx) el.className = 'line passed';
-        else el.className = 'line';
-      });
+  if (targetLineIdx !== -1) {
+    // If line changed, trigger the fluid ocean drop transition
+    if (targetLineIdx !== activeLineIndex) {
+      activeLineIndex = targetLineIdx;
+      renderLineOceanDrops(activeLineIndex);
     }
 
     // Word lighting in active line
-    const activeLine = lines[activeLineIdx];
+    const activeLine = lines[activeLineIndex];
     activeLine.words.forEach((w, wIdx) => {
-      const wEl = document.getElementById(`w-${activeLineIdx}-${wIdx}`);
+      const wEl = document.getElementById(`wd-${wIdx}`);
       if (!wEl) return;
 
       const isWordActive = curMs >= w.startMs && curMs < (w.startMs + w.durationMs);
       const hasPassed = curMs >= (w.startMs + w.durationMs);
 
       if (isWordActive) {
-        wEl.className = 'word active';
-        const glyph = resolveWordIcon(w.word);
-        if (glyph && !wEl.querySelector('.icon-glyph')) {
-          const iconSpan = document.createElement('span');
-          iconSpan.className = 'icon-glyph';
-          iconSpan.textContent = glyph;
-          wEl.appendChild(iconSpan);
+        if (!wEl.classList.contains('active')) {
+          wEl.classList.add('active');
+          wEl.classList.remove('passed');
+
+          // Pop in emoji bubble if matched
+          const meta = getWordMeta(w.word);
+          if (meta && meta.icon && !wEl.querySelector('.word-emoji')) {
+            const emojiSpan = document.createElement('span');
+            emojiSpan.className = 'word-emoji';
+            emojiSpan.textContent = meta.icon;
+            wEl.appendChild(emojiSpan);
+          }
         }
       } else if (hasPassed) {
-        wEl.className = 'word passed';
+        wEl.classList.remove('active');
+        wEl.classList.add('passed');
       } else {
-        wEl.className = 'word';
+        wEl.classList.remove('active', 'passed');
       }
     });
   }
@@ -344,7 +442,7 @@ async function handleFiles(fileList) {
 
   if (audioFiles.length === 0 && lyricFiles.length === 0) return;
 
-  // If a lyric file is dropped, attach it to the current or matching track
+  // Custom lyric dropped
   if (lyricFiles.length > 0 && audioFiles.length === 0) {
     const lFile = lyricFiles[0];
     const text = await lFile.text();
@@ -352,7 +450,8 @@ async function handleFiles(fileList) {
     const parsed = parseLrcText(text, cleanName);
     if (parsed) {
       currentLyrics = parsed;
-      renderLyricsTree(currentLyrics);
+      activeLineIndex = 0;
+      renderLineOceanDrops(0);
       displayTitle.textContent = cleanName;
     }
     return;
@@ -367,14 +466,12 @@ async function handleFiles(fileList) {
       durationMs: 0
     };
 
-    // Check if matching .lrc or .yrc exists in the dropped batch
     const matchingLyric = lyricFiles.find(lf => lf.name.replace(/\.[^/.]+$/, "").toLowerCase() === clean.toLowerCase());
     if (matchingLyric) {
       const lText = await matchingLyric.text();
       track.customLyrics = parseLrcText(lText, clean);
     }
 
-    // Parse ID3 Tags
     if (window.jsmediatags) {
       await new Promise(resolve => {
         window.jsmediatags.read(file, {
@@ -448,7 +545,7 @@ function parseLrcText(lrcText, title) {
   return { title, artist: "Custom Lyrics", isWordLevel: false, lines: timedLines };
 }
 
-// File Inputs
+// Inputs
 document.getElementById('file-input').addEventListener('change', (e) => handleFiles(e.target.files));
 document.getElementById('folder-input').addEventListener('change', (e) => handleFiles(e.target.files));
 
@@ -468,7 +565,7 @@ dropOverlay.addEventListener('drop', (e) => {
   }
 });
 
-// ──── PLAYLIST QUEUE DRAWER ────
+// Queue Drawer
 function renderQueue() {
   queueNum.textContent = playlist.length;
   queueItems.innerHTML = '';
@@ -497,7 +594,7 @@ document.getElementById('queue-close').addEventListener('click', () => {
   queuePanel.classList.remove('open');
 });
 
-// ──── STYLE SWITCHER (Verci) ────
+// Style Switcher
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));

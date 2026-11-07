@@ -9,27 +9,31 @@
 </head>
 <body class="style-fisheye-visual">
 
-  <!-- Top Minimalist Verci-like Menu Bar -->
+  <!-- Ambient Fluid Ocean Light Canvas -->
+  <div class="ocean-water-ambient" id="ocean-ambient"></div>
+  <canvas id="ocean-ripple-canvas" class="ocean-canvas"></canvas>
+
+  <!-- Top Minimalist Verci Glass Menu Bar -->
   <header class="menu-bar">
     <div class="menu-left">
       <div class="brand">
         <svg viewBox="0 0 100 100" class="brand-glyph" aria-hidden="true">
           <defs>
-            <linearGradient id="wave-mark" x1="10" y1="10" x2="70" y2="90" gradientUnits="userSpaceOnUse">
+            <linearGradient id="wave-grad" x1="10" y1="10" x2="70" y2="90" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stop-color="#ffffff"/>
-              <stop offset="55%" stop-color="#e4e4e7"/>
+              <stop offset="55%" stop-color="#f4f4f5"/>
               <stop offset="100%" stop-color="#a1a1aa"/>
             </linearGradient>
           </defs>
-          <rect x="12" y="16" width="68" height="12" rx="6" fill="url(#wave-mark)"/>
-          <rect x="12" y="36" width="52" height="12" rx="6" fill="url(#wave-mark)"/>
-          <rect x="12" y="56" width="76" height="12" rx="6" fill="url(#wave-mark)"/>
-          <rect x="12" y="76" width="36" height="12" rx="6" fill="url(#wave-mark)"/>
+          <rect x="12" y="16" width="68" height="12" rx="6" fill="url(#wave-grad)"/>
+          <rect x="12" y="36" width="52" height="12" rx="6" fill="url(#wave-grad)"/>
+          <rect x="12" y="56" width="76" height="12" rx="6" fill="url(#wave-grad)"/>
+          <rect x="12" y="76" width="36" height="12" rx="6" fill="url(#wave-grad)"/>
         </svg>
         <span class="brand-text">wavforms</span>
       </div>
 
-      <!-- Current Song Watermark / Metadata -->
+      <!-- Current Song Status Pill -->
       <div class="now-playing-pill" id="track-info-pill">
         <span class="pill-dot" id="playback-status-dot"></span>
         <span class="pill-title" id="display-title">Drop an audio file to begin</span>
@@ -38,7 +42,7 @@
       </div>
     </div>
 
-    <!-- Center: The 4 Display Styles (Verci) -->
+    <!-- Center: The 4 Display Styles -->
     <nav class="style-nav">
       <button class="nav-item" data-style="ship">Ship</button>
       <button class="nav-item" data-style="fisheye">Fisheye</button>
@@ -48,27 +52,34 @@
 
     <!-- Right Controls -->
     <div class="menu-right">
-      <!-- Auto Palette Color Well -->
-      <div class="color-well-wrap" title="Auto Sync Palette / Accent Color">
+      <!-- Sync Offset Calibrator -->
+      <div class="offset-calibrator" title="Fine-tune Lyric Sync (Hotkeys: [ and ])">
+        <button id="btn-offset-minus" class="offset-btn">-0.1s</button>
+        <span class="offset-val" id="offset-display">0.0s</span>
+        <button id="btn-offset-plus" class="offset-btn">+0.1s</button>
+      </div>
+
+      <!-- Color Auto-Sync / Palette Picker -->
+      <div class="color-well-wrap" title="Auto Sync Palette Color">
         <input type="color" id="palette-color-picker" value="#fb6e90" class="color-picker-input">
         <span class="color-dot" id="color-dot"></span>
       </div>
 
-      <!-- Upload Trigger -->
-      <label class="action-btn upload-trigger" title="Upload Audio File or Folder">
+      <!-- File Upload Button -->
+      <label class="action-btn" title="Upload Audio File or Folder">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m6.8 10.6 5.2 5.2 5.2-5.2"/><path d="M4.5 20h15"/></svg>
         <span>Upload</span>
         <input type="file" id="file-input" accept="audio/*,.lrc,.yrc" multiple style="display:none;">
       </label>
 
-      <!-- Folder Upload -->
-      <label class="action-btn folder-trigger" title="Open Music Folder">
+      <!-- Music Folder Button -->
+      <label class="action-btn" title="Open Music Folder">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
         <span>Folder</span>
         <input type="file" id="folder-input" webkitdirectory directory multiple style="display:none;">
       </label>
 
-      <!-- Playlist Queue -->
+      <!-- Queue Drawer Toggle -->
       <button class="action-btn icon-btn" id="btn-queue" title="Queue">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
       </button>
@@ -80,25 +91,33 @@
     </div>
   </header>
 
-  <!-- Monolithic Lyric Stage -->
-  <main class="lyric-stage" id="lyric-stage">
-    <div class="lyrics-viewport" id="lyrics-viewport">
-      <div class="lyrics-track" id="lyrics-track">
-        <!-- Live synced lyrics stream here -->
+  <!-- Ocean Stage: Single Focused Dropping Line Presentation -->
+  <main class="ocean-stage" id="ocean-stage">
+    
+    <!-- Previous line fading away as water vapor -->
+    <div class="line-container prev-line" id="prev-line-container"></div>
+
+    <!-- Active Line: Words dropping like droplets in water -->
+    <div class="line-container active-line" id="active-line-container">
+      <div class="ocean-drop-line" id="current-line">
+        <span class="idle-message">Drop your songs here or click Upload</span>
       </div>
     </div>
 
-    <!-- Drag & Drop Overlay Zone -->
+    <!-- Upcoming line floating underneath like water reflection -->
+    <div class="line-container next-line" id="next-line-container"></div>
+
+    <!-- Drag & Drop Zone -->
     <div class="drop-overlay" id="drop-overlay">
       <div class="drop-content">
         <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="m6.8 10.6 5.2 5.2 5.2-5.2"/><path d="M4.5 20h15"/></svg>
         <h3>Drop Songs or Music Folder</h3>
-        <p>Supports MP3, WAV, FLAC, M4A, OGG, LRC, YRC. Instantly matches lyrics word-by-word.</p>
+        <p>Supports MP3, WAV, FLAC, M4A, OGG, LRC, YRC. Instant millisecond sync.</p>
       </div>
     </div>
   </main>
 
-  <!-- Minimalist Hover Scrubber & Playback HUD -->
+  <!-- Minimalist Hover HUD Playback Scrubber -->
   <footer class="minimal-hud" id="minimal-hud">
     <button class="hud-play-btn" id="hud-play" title="Play/Pause (Space)">
       <svg id="icon-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -114,7 +133,7 @@
     <span class="hud-time" id="hud-dur">0:00</span>
   </footer>
 
-  <!-- Clean Queue Slide-Out Panel -->
+  <!-- Slide-out Playlist Queue Panel -->
   <aside class="queue-panel" id="queue-panel">
     <div class="queue-header">
       <span>Queue (<span id="queue-num">0</span>)</span>
@@ -125,7 +144,7 @@
     </div>
   </aside>
 
-  <!-- Hidden Native Audio -->
+  <!-- Audio Element -->
   <audio id="audio" preload="auto"></audio>
 
   <!-- ID3 Tag Parser -->
