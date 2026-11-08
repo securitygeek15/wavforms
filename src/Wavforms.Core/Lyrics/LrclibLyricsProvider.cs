@@ -38,7 +38,8 @@ public class LrclibLyricsProvider
                 var resp = await _httpClient.GetStringAsync(getUrl);
                 using var doc = JsonDocument.Parse(resp);
 
-                if (doc.RootElement.TryGetProperty("syncedLyrics", out var syncedProp))
+                if (doc.RootElement.TryGetProperty("syncedLyrics", out var syncedProp) &&
+                    syncedProp.ValueKind == JsonValueKind.String)
                 {
                     var syncedLrc = syncedProp.GetString();
                     if (!string.IsNullOrWhiteSpace(syncedLrc))
@@ -64,37 +65,52 @@ public class LrclibLyricsProvider
             if (searchDoc.RootElement.ValueKind == JsonValueKind.Array)
             {
                 string? bestSyncedLrc = null;
+                string? bestPlainLyrics = null;
                 double minDurDiff = double.MaxValue;
 
                 foreach (var item in searchDoc.RootElement.EnumerateArray())
                 {
-                    if (item.TryGetProperty("syncedLyrics", out var synProp))
+                    if (item.ValueKind != JsonValueKind.Object) continue;
+
+                    if (item.TryGetProperty("syncedLyrics", out var synProp) && synProp.ValueKind == JsonValueKind.String)
                     {
                         var lrcText = synProp.GetString();
-                        if (string.IsNullOrWhiteSpace(lrcText)) continue;
-
-                        double trackDur = item.TryGetProperty("duration", out var dProp) ? dProp.GetDouble() : 0;
-                        if (durSec > 0 && trackDur > 0)
+                        if (!string.IsNullOrWhiteSpace(lrcText))
                         {
-                            double diff = Math.Abs(trackDur - durSec);
-                            if (diff < minDurDiff)
+                            double trackDur = item.TryGetProperty("duration", out var dProp) && dProp.ValueKind == JsonValueKind.Number ? dProp.GetDouble() : 0;
+                            if (durSec > 0 && trackDur > 0)
                             {
-                                minDurDiff = diff;
+                                double diff = Math.Abs(trackDur - durSec);
+                                if (diff < minDurDiff)
+                                {
+                                    minDurDiff = diff;
+                                    bestSyncedLrc = lrcText;
+                                    if (diff <= 3.0) break; // Perfect duration match!
+                                }
+                            }
+                            else if (bestSyncedLrc == null)
+                            {
                                 bestSyncedLrc = lrcText;
-                                if (diff <= 3.0) break; // Perfect duration match!
+                                if (durSec == 0) break;
                             }
                         }
-                        else if (bestSyncedLrc == null)
-                        {
-                            bestSyncedLrc = lrcText;
-                            if (durSec == 0) break;
-                        }
+                    }
+
+                    if (bestPlainLyrics == null && item.TryGetProperty("plainLyrics", out var plainProp) && plainProp.ValueKind == JsonValueKind.String)
+                    {
+                        bestPlainLyrics = plainProp.GetString();
                     }
                 }
 
                 if (!string.IsNullOrWhiteSpace(bestSyncedLrc))
                 {
                     return LyricsInterpolator.FromLrc(bestSyncedLrc, cleanTitle, artist);
+                }
+
+                // Plain lyrics fallback if synced unavailable
+                if (!string.IsNullOrWhiteSpace(bestPlainLyrics))
+                {
+                    return LyricsInterpolator.FromPlainLyrics(bestPlainLyrics, cleanTitle, artist, durationMs);
                 }
             }
         }

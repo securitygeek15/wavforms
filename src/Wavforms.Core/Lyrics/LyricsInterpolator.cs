@@ -8,8 +8,8 @@ namespace Wavforms.Core.Lyrics;
 
 public static class LyricsInterpolator
 {
-    // Standard LRC timestamp: [mm:ss.xx] or [mm:ss.xxx]
-    private static readonly Regex LrcRegex = new(@"\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)", RegexOptions.Compiled);
+    // Flexible LRC timestamp regex: [00:11.08], [0:11.8], [00:11.850], [00:11:08], [00:11]
+    private static readonly Regex LrcRegex = new(@"\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\](.*)", RegexOptions.Compiled);
 
     public static TimedSongLyrics FromLrc(string rawLrc, string title, string artist)
     {
@@ -25,13 +25,27 @@ public static class LyricsInterpolator
 
         foreach (var l in rawLines)
         {
-            var match = LrcRegex.Match(l.Trim());
+            var trimmed = l.Trim();
+            // Skip metadata or NetEase JSON header lines
+            if (trimmed.StartsWith("{") || trimmed.StartsWith("[ti:") || trimmed.StartsWith("[ar:") || 
+                trimmed.StartsWith("[al:") || trimmed.StartsWith("[by:") || trimmed.StartsWith("[offset:"))
+            {
+                continue;
+            }
+
+            var match = LrcRegex.Match(trimmed);
             if (!match.Success) continue;
 
             long min = long.Parse(match.Groups[1].Value);
             long sec = long.Parse(match.Groups[2].Value);
-            string fracStr = match.Groups[3].Value;
-            long ms = fracStr.Length == 2 ? long.Parse(fracStr) * 10 : long.Parse(fracStr);
+            long ms = 0;
+            if (match.Groups[3].Success)
+            {
+                string fracStr = match.Groups[3].Value;
+                if (fracStr.Length == 1) ms = long.Parse(fracStr) * 100;
+                else if (fracStr.Length == 2) ms = long.Parse(fracStr) * 10;
+                else ms = long.Parse(fracStr);
+            }
 
             long totalMs = (min * 60 * 1000) + (sec * 1000) + ms;
             string text = match.Groups[4].Value.Trim();
@@ -97,6 +111,66 @@ public static class LyricsInterpolator
 
                 var icon = WordVisualResolver.Resolve(wordStr);
                 timedLine.Words.Add(new TimedWord(currentWordStart, wordDur, wordStr, icon));
+                currentWordStart += wordDur;
+            }
+
+            lyrics.Lines.Add(timedLine);
+        }
+
+        return lyrics;
+    }
+
+    public static TimedSongLyrics FromPlainLyrics(string rawText, string title, string artist, long totalDurationMs = 0)
+    {
+        var lyrics = new TimedSongLyrics
+        {
+            Title = title,
+            Artist = artist,
+            IsWordLevel = false
+        };
+
+        var rawLines = rawText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        var cleanLines = new List<string>();
+        foreach (var l in rawLines)
+        {
+            var trimmed = l.Trim();
+            if (trimmed.Length > 0 && !trimmed.StartsWith("[") && !trimmed.StartsWith("{"))
+            {
+                cleanLines.Add(trimmed);
+            }
+        }
+
+        if (cleanLines.Count == 0) return lyrics;
+
+        long effectiveDur = totalDurationMs > 30000 ? totalDurationMs : (cleanLines.Count * 4500L);
+        long startOffset = Math.Min(10000, effectiveDur / 12);
+        long usableDuration = Math.Max(10000, effectiveDur - startOffset - 5000);
+        long lineStep = Math.Max(2200, usableDuration / cleanLines.Count);
+
+        for (int i = 0; i < cleanLines.Count; i++)
+        {
+            string lineText = cleanLines[i];
+            long lineStart = startOffset + (i * lineStep);
+            long lineDur = Math.Min(lineStep - 300, Math.Max(1200, lineText.Length * 110));
+
+            var timedLine = new TimedLine
+            {
+                StartMs = lineStart,
+                DurationMs = lineDur,
+                Text = lineText
+            };
+
+            var tokens = lineText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            int totalChars = 0;
+            foreach (var t in tokens) totalChars += Math.Max(1, t.Length);
+
+            long currentWordStart = lineStart;
+            for (int t = 0; t < tokens.Length; t++)
+            {
+                string wordStr = tokens[t];
+                int charWeight = Math.Max(1, wordStr.Length);
+                long wordDur = Math.Max(100, (long)Math.Round((double)charWeight / Math.Max(1, totalChars) * lineDur));
+                timedLine.Words.Add(new TimedWord(currentWordStart, wordDur, wordStr, null));
                 currentWordStart += wordDur;
             }
 

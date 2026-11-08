@@ -62,7 +62,9 @@ public class NcmLyricsProvider
             using var searchDoc = JsonDocument.Parse(searchResp);
 
             if (!searchDoc.RootElement.TryGetProperty("result", out var result) ||
+                result.ValueKind != JsonValueKind.Object ||
                 !result.TryGetProperty("songs", out var songs) ||
+                songs.ValueKind != JsonValueKind.Array ||
                 songs.GetArrayLength() == 0)
             {
                 return null;
@@ -93,14 +95,16 @@ public class NcmLyricsProvider
 
             if (bestSongId == 0) return null;
 
-            // 2. Fetch lyrics with YRC (word-by-word)
+            // 2. Fetch lyrics with YRC (word-by-word) or LRC
             var lyricUrl = $"https://music.163.com/api/song/lyric/v1?id={bestSongId}&lv=-1&kv=-1&tv=-1&yv=1&ytv=1&yrv=1";
             var lyricResp = await _httpClient.GetStringAsync(lyricUrl);
             using var lyricDoc = JsonDocument.Parse(lyricResp);
 
-            // Try YRC first (per-word)
+            // Try YRC first (per-word) - must verify ValueKind is Object before accessing properties
             if (lyricDoc.RootElement.TryGetProperty("yrc", out var yrcObj) &&
-                yrcObj.TryGetProperty("lyric", out var yrcTextProp))
+                yrcObj.ValueKind == JsonValueKind.Object &&
+                yrcObj.TryGetProperty("lyric", out var yrcTextProp) &&
+                yrcTextProp.ValueKind == JsonValueKind.String)
             {
                 var yrc = yrcTextProp.GetString();
                 if (!string.IsNullOrWhiteSpace(yrc))
@@ -113,9 +117,11 @@ public class NcmLyricsProvider
                 }
             }
 
-            // Fallback to LRC if YRC is missing
+            // Fallback to LRC if YRC is missing - must verify ValueKind is Object before accessing properties
             if (lyricDoc.RootElement.TryGetProperty("lrc", out var lrcObj) &&
-                lrcObj.TryGetProperty("lyric", out var lrcTextProp))
+                lrcObj.ValueKind == JsonValueKind.Object &&
+                lrcObj.TryGetProperty("lyric", out var lrcTextProp) &&
+                lrcTextProp.ValueKind == JsonValueKind.String)
             {
                 var lrc = lrcTextProp.GetString();
                 if (!string.IsNullOrWhiteSpace(lrc))

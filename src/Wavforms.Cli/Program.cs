@@ -22,6 +22,32 @@ class Program
         Console.ResetColor();
 
         var lyricsService = new LyricsService();
+
+        if (args.Length > 0)
+        {
+            string title = args[0];
+            string artist = args.Length > 1 ? args[1] : "";
+            long.TryParse(args.Length > 2 ? args[2] : "0", out long dur);
+
+            Console.WriteLine($"[*] Querying lyrics for: '{title}' - {artist} (Duration: {dur}ms)...");
+            var resolved = await lyricsService.GetLyricsAsync(title, artist, dur);
+            if (resolved != null && resolved.Lines.Count > 0)
+            {
+                Console.WriteLine($"[✓] Lyrics resolved! Source: {(resolved.IsWordLevel ? "NetEase YRC (Word-Level)" : "LRCLIB / LRC (Word-Interpolated)")}");
+                Console.WriteLine($"[✓] Total Lines: {resolved.Lines.Count}\n");
+                for (int i = 0; i < Math.Min(6, resolved.Lines.Count); i++)
+                {
+                    var l = resolved.Lines[i];
+                    Console.WriteLine($"  [{l.StartMs}ms - {l.EndMs}ms] {l.Text} ({l.Words.Count} words)");
+                }
+            }
+            else
+            {
+                Console.WriteLine("[X] No lyrics found.");
+            }
+            return;
+        }
+
         using var mediaManager = new WindowsMediaSessionManager();
 
         Console.WriteLine("[*] Initializing Windows GSMTC Session Manager...");
