@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3456;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 // ──── DISCORD RICH PRESENCE (RPC) ENGINE ────
-const DISCORD_CLIENT_ID = '463097721130188830';
+const DISCORD_CLIENT_ID = '1568938073365020702';
 let discordSocket = null;
 let discordConnected = false;
 let discordRetryTimer = null;

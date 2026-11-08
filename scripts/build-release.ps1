@@ -12,19 +12,17 @@ $csc = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
 $sevenZip = "C:\Program Files\7-Zip\7z.exe"
 
 Write-Host "================================================================" -ForegroundColor Cyan
-Write-Host "  Building wavforms v$version Aesthetic Release & Installer     " -ForegroundColor White
+Write-Host "  Building wavforms v$version Native Desktop & Installer        " -ForegroundColor White
 Write-Host "================================================================`n" -ForegroundColor Cyan
 
 # 1. Clean Staging & Output
 if (Test-Path $stageDir) { Remove-Item -Recurse -Force $stageDir }
 New-Item -ItemType Directory -Path $stageDir -Force | Out-Null
 
-# 2. Compile Native Launcher (wavforms.exe)
-Write-Host "[1/5] Compiling native launcher (wavforms.exe)..." -ForegroundColor Gray
-& $csc /target:winexe /platform:anycpu /win32icon:assets\icon.ico /out:"$stageDir\wavforms.exe" `
-    /r:System.dll,System.Windows.Forms.dll,System.Drawing.dll `
-    src\Launcher\Program.cs | Out-Null
-Write-Host "      [OK] wavforms.exe compiled" -ForegroundColor Green
+# 2. Publish Native Desktop Host (wavforms.exe)
+Write-Host "[1/5] Compiling native desktop host (wavforms.exe)..." -ForegroundColor Gray
+dotnet publish "$PSScriptRoot\..\src\Wavforms.Launcher\Wavforms.Launcher.csproj" -c Release -r win-x64 --self-contained false -o "$stageDir" | Out-Null
+Write-Host "      [OK] wavforms.exe native desktop application published" -ForegroundColor Green
 
 # 3. Compile Uninstaller (uninstall.exe)
 Write-Host "[2/5] Compiling clean uninstaller (uninstall.exe)..." -ForegroundColor Gray
@@ -37,7 +35,7 @@ Write-Host "      [OK] uninstall.exe compiled" -ForegroundColor Green
 Write-Host "[3/5] Gathering application files into payload..." -ForegroundColor Gray
 $itemsToCopy = @("public", "assets", "server.js", "package.json", "wavforms.vbs", "run.bat", "run.ps1")
 foreach ($item in $itemsToCopy) {
-    Copy-Item -Path $item -Destination $stageDir -Recurse -Force
+    Copy-Item -Path "$PSScriptRoot\..\$item" -Destination $stageDir -Recurse -Force
 }
 
 # Remove large media demo files from installer payload
@@ -48,8 +46,16 @@ if (Test-Path "$stageDir\assets\showcase.gif") {
     Remove-Item -Force "$stageDir\assets\showcase.gif"
 }
 
-# Also keep root wavforms.exe updated
-Copy-Item -Path "$stageDir\wavforms.exe" -Destination ".\wavforms.exe" -Force
+# Update root wavforms.exe and native host files
+Copy-Item -Path "$stageDir\wavforms.exe" -Destination "$PSScriptRoot\..\wavforms.exe" -Force
+Copy-Item -Path "$stageDir\wavforms.dll" -Destination "$PSScriptRoot\..\wavforms.dll" -Force
+Copy-Item -Path "$stageDir\wavforms.runtimeconfig.json" -Destination "$PSScriptRoot\..\wavforms.runtimeconfig.json" -Force
+Copy-Item -Path "$stageDir\wavforms.deps.json" -Destination "$PSScriptRoot\..\wavforms.deps.json" -Force
+Copy-Item -Path "$stageDir\Microsoft.Web.WebView2.*" -Destination "$PSScriptRoot\.." -Force
+Copy-Item -Path "$stageDir\WebView2Loader.dll" -Destination "$PSScriptRoot\..\WebView2Loader.dll" -Force
+if (Test-Path "$stageDir\runtimes") {
+    Copy-Item -Path "$stageDir\runtimes" -Destination "$PSScriptRoot\.." -Recurse -Force
+}
 
 # 5. Build Portable ZIP
 Write-Host "[4/5] Building portable ZIP archive..." -ForegroundColor Gray

@@ -9,17 +9,13 @@ try {
 
 if (-not $running) {
     Start-Process -FilePath "node" -ArgumentList "server.js" -WindowStyle Hidden
-    Start-Sleep -Milliseconds 800
+    Start-Sleep -Milliseconds 600
 }
 
-$edgePath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-$chromePath = "C:\Program Files\Google\Chrome\Application\chrome.exe"
-$url = "http://localhost:3456"
-
-if (Test-Path $edgePath) {
-    Start-Process -FilePath $edgePath -ArgumentList "--app=$url", "--window-size=1180,780"
-} elseif (Test-Path $chromePath) {
-    Start-Process -FilePath $chromePath -ArgumentList "--app=$url", "--window-size=1180,780"
+# Launch dedicated native desktop app
+$nativeApp = Join-Path $PSScriptRoot "wavforms.exe"
+if (Test-Path $nativeApp) {
+    Start-Process -FilePath $nativeApp
 } else {
-    Start-Process $url
+    Start-Process "http://localhost:3456"
 }
