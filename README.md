@@ -87,6 +87,11 @@ Switch styles anytime from the clean top menu bar:
 ```bash
 git clone https://github.com/securitygeek15/wavforms.git
 cd wavforms
+
+# Quick launch
+.\run.bat
+
+# Or run via Node
 npm start
 ```
 
