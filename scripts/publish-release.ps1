@@ -1,4 +1,4 @@
-# Publish GitHub Release Script
+﻿# Publish GitHub Release Script
 $ErrorActionPreference = "Stop"
 
 $cred = (echo "protocol=https`nhost=github.com" | git credential fill)
@@ -46,10 +46,17 @@ $payloadJson = (@{
 
 $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($payloadJson)
 
-Write-Host "[*] Creating GitHub Release $tag..." -ForegroundColor Cyan
-$release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases" -Method Post -Headers $headers -Body $bodyBytes -ContentType "application/json; charset=utf-8"
+# Check if release already exists, or create a new one
+$release = $null
+try {
+    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/tags/$tag" -Method Get -Headers $headers
+    Write-Host "[OK] Found existing release $tag, updating assets..." -ForegroundColor Green
+} catch {
+    Write-Host "[*] Creating GitHub Release $tag..." -ForegroundColor Cyan
+    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases" -Method Post -Headers $headers -Body $bodyBytes -ContentType "application/json; charset=utf-8"
+    Write-Host "[OK] Release created: $($release.html_url)" -ForegroundColor Green
+}
 $uploadUrlTemplate = $release.upload_url
-Write-Host "[✓] Release created: $($release.html_url)" -ForegroundColor Green
 
 # Upload assets
 $assets = @(
@@ -62,7 +69,7 @@ foreach ($asset in $assets) {
     if (Test-Path $asset.Path) {
         $name = $asset.Name
         Write-Host "[*] Uploading $name..." -ForegroundColor Gray
-        $uploadUrl = $uploadUrlTemplate.Replace("{?name,label}", "?name=$name")
+        $uploadUrl = $uploadUrlTemplate.Replace('{?name,label}', "?name=$name")
         $fileBytes = [System.IO.File]::ReadAllBytes((Resolve-Path $asset.Path).Path)
         
         $uploadHeaders = @{
@@ -72,10 +79,16 @@ foreach ($asset in $assets) {
             "Content-Type" = $asset.ContentType
         }
 
+        # Delete existing asset if it exists
+        $existing = $release.assets | Where-Object { $_.name -eq $name }
+        if ($existing) {
+            Invoke-RestMethod -Uri $existing.url -Method Delete -Headers @{ "Authorization" = "token $token"; "User-Agent" = "wavforms-publisher" } -ErrorAction SilentlyContinue
+        }
+
         $res = Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers $uploadHeaders -Body $fileBytes
-        Write-Host "    [✓] Uploaded $name ($(($fileBytes.Length / 1MB).ToString('0.00')) MB)" -ForegroundColor Green
+        Write-Host "    [OK] Uploaded $name ($(($fileBytes.Length / 1MB).ToString('0.00')) MB)" -ForegroundColor Green
     }
 }
 
-Write-Host "`n[✓] All release assets uploaded successfully!" -ForegroundColor Cyan
+Write-Host "`n[OK] All release assets uploaded successfully!" -ForegroundColor Cyan
 Write-Host "    Release URL: $($release.html_url)" -ForegroundColor White
