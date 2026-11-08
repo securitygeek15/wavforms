@@ -1,6 +1,7 @@
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import net from 'net';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -8,6 +9,103 @@ const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3456;
 const PUBLIC_DIR = path.join(__dirname, 'public');
+
+// ──── DISCORD RICH PRESENCE (RPC) ENGINE ────
+const DISCORD_CLIENT_ID = '463097721130188830';
+let discordSocket = null;
+let discordConnected = false;
+let discordRetryTimer = null;
+
+function encodeDiscordFrame(op, data) {
+  const jsonBuf = Buffer.from(JSON.stringify(data), 'utf8');
+  const header = Buffer.alloc(8);
+  header.writeUInt32LE(op, 0);
+  header.writeUInt32LE(jsonBuf.length, 4);
+  return Buffer.concat([header, jsonBuf]);
+}
+
+function initDiscordRPC() {
+  if (discordSocket || discordConnected) return;
+
+  const pipes = ['\\\\?\\pipe\\discord-ipc-0', '\\\\?\\pipe\\discord-ipc-1', '\\\\.\\pipe\\discord-ipc-0'];
+  let pipeIdx = 0;
+
+  function tryNextPipe() {
+    if (pipeIdx >= pipes.length) {
+      if (!discordRetryTimer) {
+        discordRetryTimer = setTimeout(() => {
+          discordRetryTimer = null;
+          initDiscordRPC();
+        }, 8000);
+      }
+      return;
+    }
+
+    const currentPipe = pipes[pipeIdx++];
+    const sock = net.connect(currentPipe, () => {
+      discordSocket = sock;
+      sock.write(encodeDiscordFrame(0, { v: 1, client_id: DISCORD_CLIENT_ID }));
+    });
+
+    sock.on('data', (buf) => {
+      try {
+        const op = buf.readUInt32LE(0);
+        const len = buf.readUInt32LE(4);
+        const payload = JSON.parse(buf.subarray(8, 8 + len).toString('utf8'));
+        if (payload.cmd === 'DISPATCH' && payload.evt === 'READY') {
+          discordConnected = true;
+          console.log(`[Discord RPC] Connected live as ${payload.data?.user?.username || 'user'}`);
+        }
+      } catch (e) {}
+    });
+
+    sock.on('error', () => {
+      sock.destroy();
+      discordSocket = null;
+      discordConnected = false;
+      setTimeout(tryNextPipe, 350);
+    });
+
+    sock.on('close', () => {
+      discordSocket = null;
+      discordConnected = false;
+    });
+  }
+
+  tryNextPipe();
+}
+
+function setDiscordActivity(details, state, startSec, durationSec, isPaused) {
+  if (!discordSocket || !discordConnected) return false;
+  try {
+    const activity = {
+      cmd: 'SET_ACTIVITY',
+      args: {
+        pid: process.pid,
+        activity: isPaused ? null : {
+          details: details || 'wavforms',
+          state: state || 'Word-by-word synchronized lyrics',
+          assets: {
+            large_image: 'https://raw.githubusercontent.com/securitygeek15/wavforms/main/assets/logo.png',
+            large_text: 'wavforms — word-by-word synchronized lyrics'
+          },
+          timestamps: startSec ? {
+            start: startSec,
+            end: durationSec ? startSec + Math.floor(durationSec) : undefined
+          } : undefined
+        }
+      },
+      nonce: String(Date.now())
+    };
+    discordSocket.write(encodeDiscordFrame(1, activity));
+    return true;
+  } catch (err) {
+    console.error('[Discord RPC Send Error]:', err.message);
+    return false;
+  }
+}
+
+initDiscordRPC();
 
 // Aggressive cleaning to ensure 100% accurate search queries
 function cleanTitle(raw) {
@@ -352,6 +450,33 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/ping') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ app: 'wavforms', version: '1.0.0' }));
+    return;
+  }
+
+  if (pathname === '/api/discord/status') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ connected: discordConnected }));
+    return;
+  }
+
+  if (pathname === '/api/discord/presence' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const startSec = payload.currentSec ? Math.floor(Date.now() / 1000) - Math.floor(payload.currentSec) : Math.floor(Date.now() / 1000);
+        const details = payload.title ? `${payload.title}${payload.artist && payload.artist !== 'Local Track' ? ' • ' + payload.artist : ''}` : 'wavforms';
+        const state = payload.lineText ? `♫ "${payload.lineText}"` : 'Word-by-word synchronized lyrics';
+
+        const sent = setDiscordActivity(details, state, startSec, payload.durationSec, !!payload.paused);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true, connected: discordConnected, sent }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
     return;
   }
 

@@ -19,6 +19,7 @@
     <img src="https://img.shields.io/badge/Version-v1.0.0-fb6e90?style=flat-square" alt="Version" />
     <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-black?style=flat-square" alt="Platform" />
     <img src="https://img.shields.io/badge/Lyrics-YRC%20Word--Level-ffffff?style=flat-square" alt="YRC" />
+    <img src="https://img.shields.io/badge/Discord-Rich%20Presence-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord RPC" />
     <img src="https://img.shields.io/badge/License-MIT-white?style=flat-square" alt="License" />
   </p>
 
@@ -57,6 +58,15 @@ Switch styles anytime from the clean top menu bar:
 | :--- | :--- |
 | **Ship** | **3D Perspective Drift** — Words stack onto a tilted spatial wall that drifts with gentle oceanic depth and camera parallax. |
 | **Visual** | **Kinetic Typography + Dynamic Accents** — Words light up with fast-paced velocity, paired with reactive lyric sentiment animations. |
+
+---
+
+## Discord Rich Presence (RPC)
+
+`wavforms` natively broadcasts your current track and live lyrics directly to your Discord profile via local Windows IPC pipes:
+- **Playing Status**: Displays your current song title, artist, and remaining elapsed time progress.
+- **Real-Time Lyric Broadcast**: Displays the current lyric line in real time as the artist sings.
+- **Zero Config**: Automatically connects to your desktop Discord client in the background.
 
 ---
 

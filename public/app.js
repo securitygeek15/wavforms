@@ -145,6 +145,7 @@ function updatePlayState(isPlaying) {
     hud.classList.add('active');
     setTimeout(() => hud.classList.remove('active'), 2500);
   }
+  updateDiscordRPC(true);
 }
 
 hudPlay.addEventListener('click', togglePlayback);
@@ -655,6 +656,12 @@ function updateVerciUnifiedStream(curMs) {
     const splashColor = activeW.type === 'badge' ? '#ff2a5f' : (activeW.type === 'box' ? '#fda4af' : '#ff3344');
     spawnWordSplash(activeRowEl, splashColor);
   }
+
+  // Update line index tracking for lyrics and Discord RPC
+  if (activeW.lineIdx !== undefined && activeW.lineIdx !== activeLineIndex) {
+    activeLineIndex = activeW.lineIdx;
+    updateDiscordRPC(true);
+  }
 }
 
 // ──── RENDER SINGLE ACTIVE LINE AS FAST-PACED OCEAN DROPS (FOR SHIP MODE) ────
@@ -712,6 +719,9 @@ function tick() {
     hudFill.style.width = `${pct}%`;
   }
 
+  // Update Discord Rich Presence
+  updateDiscordRPC();
+
   if (!currentLyrics || !currentLyrics.lines) return;
 
   // 1: VERCI SIGNATURE KINETIC VISUAL MODE (Continuous unified word flow)
@@ -737,6 +747,7 @@ function tick() {
     if (targetLineIdx !== activeLineIndex) {
       activeLineIndex = targetLineIdx;
       renderLineOceanDrops(activeLineIndex);
+      updateDiscordRPC(true);
     }
 
     const activeLine = lines[activeLineIndex];
@@ -978,3 +989,46 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     }
   });
 });
+
+// ──── DISCORD RICH PRESENCE (RPC) CLIENT ────
+let lastDiscordUpdateMs = 0;
+let lastDiscordLine = '';
+
+function updateDiscordRPC(force = false) {
+  const now = Date.now();
+  if (!force && (now - lastDiscordUpdateMs < 3000)) return;
+
+  const track = playlist[currentTrackIndex];
+  if (!track) return;
+
+  let lineText = '';
+  if (currentLyrics && currentLyrics.lines && activeLineIndex >= 0 && currentLyrics.lines[activeLineIndex]) {
+    lineText = currentLyrics.lines[activeLineIndex].text;
+  }
+
+  if (!force && lineText === lastDiscordLine && (now - lastDiscordUpdateMs < 6000)) return;
+  lastDiscordUpdateMs = now;
+  lastDiscordLine = lineText;
+
+  fetch('/api/discord/presence', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: track.title,
+      artist: track.artist,
+      lineText,
+      currentSec: audio.currentTime,
+      durationSec: audio.duration,
+      paused: audio.paused
+    })
+  }).then(r => r.json()).then(data => {
+    const pill = document.getElementById('discord-rpc-pill');
+    if (pill) {
+      if (data.connected) {
+        pill.classList.add('connected');
+      } else {
+        pill.classList.remove('connected');
+      }
+    }
+  }).catch(() => {});
+}

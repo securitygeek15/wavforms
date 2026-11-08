@@ -200,6 +200,50 @@ html, body {
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* Discord Rich Presence Indicator Pill */
+.discord-rpc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(88, 101, 242, 0.12);
+  border: 1px solid rgba(88, 101, 242, 0.28);
+  border-radius: 999px;
+  padding: 4px 12px;
+  color: #c7d5e0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.discord-rpc-pill svg {
+  color: #7289da;
+  transition: transform 0.2s;
+}
+
+.discord-rpc-pill.connected {
+  background: rgba(88, 101, 242, 0.22);
+  border-color: rgba(88, 101, 242, 0.55);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(88, 101, 242, 0.35);
+}
+
+.discord-rpc-pill.connected svg {
+  color: #5865F2;
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 6px rgba(88, 101, 242, 0.8));
+}
+
+.discord-rpc-pill.connected::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #23a55a;
+  box-shadow: 0 0 8px #23a55a;
+}
+
 .offset-val {
   padding: 0 4px;
   color: #ffffff;
