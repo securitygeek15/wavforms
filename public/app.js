@@ -585,27 +585,28 @@ function getVerciWordType(word, index) {
 function buildVerciRowHtml(w, tierClass, index) {
   if (!w) return '';
   const type = w.type || getVerciWordType(w.word, index);
+  const wordLen = (w.word || '').length || 5;
 
   let content = '';
   if (type === 'badge') {
     content = `
-      <div class="verci-badge">
-        <span class="verci-badge-text">${w.word}</span>
+      <div class="verci-badge" style="--word-len: ${wordLen};">
+        <span class="verci-badge-text" style="--word-len: ${wordLen};">${w.word}</span>
       </div>
     `;
   } else if (type === 'box') {
     content = `
-      <div class="verci-box-highlight">
-        <span class="verci-box-text">${w.word}</span>
+      <div class="verci-box-highlight" style="--word-len: ${wordLen};">
+        <span class="verci-box-text" style="--word-len: ${wordLen};">${w.word}</span>
       </div>
     `;
   } else {
     content = `
-      <span class="verci-word-giant">${w.word}</span>
+      <span class="verci-word-giant" style="--word-len: ${wordLen};">${w.word}</span>
     `;
   }
 
-  return `<div class="verci-row ${tierClass}" id="vrow-${index}" data-widx="${index}">${content}</div>`;
+  return `<div class="verci-row ${tierClass}" id="vrow-${index}" data-widx="${index}" style="--word-len: ${wordLen};">${content}</div>`;
 }
 
 // Global Unified Word Stream across entire song for seamless kinetic flow

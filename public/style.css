@@ -661,6 +661,8 @@ body:not(.state-empty) .lyric-playback-view {
   align-items: center;
   justify-content: center;
   margin: 22px 0;
+  max-width: 96vw;
+  box-sizing: border-box;
   opacity: 0.18;
   transform: scale(0.76);
   filter: blur(1.5px);
@@ -801,12 +803,21 @@ body:not(.state-empty) .lyric-playback-view {
 /* 1. Monumental Giant Hero Word (e.g. "never", "my", "tell", "So", "need") */
 .style-visual .verci-word-giant {
   font-family: var(--font-lyrics);
-  font-size: clamp(92px, 14.5vw, 154px);
+  /* Dynamic length-adaptive sizing: long words auto-scale so they NEVER strip or clip off screen edges */
+  font-size: min(
+    calc(88vw / max(var(--word-len, 5) * 0.74, 4.2)),
+    clamp(64px, 14vw, 150px)
+  );
   font-weight: 900;
   color: #ff3344;
-  letter-spacing: 0.02em;
-  line-height: 1.0;
+  letter-spacing: 0.015em;
+  line-height: 1.02;
   margin: 0 16px;
+  max-width: 92vw;
+  box-sizing: border-box;
+  text-align: center;
+  overflow: visible;
+  white-space: nowrap;
   text-shadow: 0 0 54px rgba(255, 51, 68, 0.55),
                0 0 110px rgba(255, 51, 68, 0.25);
   will-change: transform, color, opacity;
@@ -819,7 +830,9 @@ body:not(.state-empty) .lyric-playback-view {
   justify-content: center;
   background: #ff2a5f;
   color: #ffffff;
-  padding: 10px 42px;
+  padding: 10px clamp(24px, 3.5vw, 42px);
+  max-width: 92vw;
+  box-sizing: border-box;
   border-radius: 14px;
   margin: 4px 16px;
   transform: skewX(-9deg) rotate(-2deg);
@@ -831,7 +844,10 @@ body:not(.state-empty) .lyric-playback-view {
 
 .style-visual .verci-badge-text {
   font-family: var(--font-lyrics);
-  font-size: clamp(74px, 11.5vw, 120px);
+  font-size: min(
+    calc(78vw / max(var(--word-len, 5) * 0.76, 4.4)),
+    clamp(54px, 11.5vw, 118px)
+  );
   font-weight: 900;
   font-style: italic;
   letter-spacing: 0.01em;
@@ -847,7 +863,9 @@ body:not(.state-empty) .lyric-playback-view {
   justify-content: center;
   background: rgba(140, 18, 38, 0.52);
   border-radius: 12px;
-  padding: 6px 34px;
+  padding: 6px clamp(18px, 2.8vw, 34px);
+  max-width: 92vw;
+  box-sizing: border-box;
   margin: 4px 14px;
   transform: skewX(-4deg);
   transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
@@ -856,7 +874,10 @@ body:not(.state-empty) .lyric-playback-view {
 
 .style-visual .verci-box-text {
   font-family: var(--font-lyrics);
-  font-size: clamp(86px, 13.5vw, 146px);
+  font-size: min(
+    calc(82vw / max(var(--word-len, 5) * 0.75, 4.4)),
+    clamp(58px, 13vw, 140px)
+  );
   font-weight: 900;
   letter-spacing: 0.01em;
   line-height: 1.05;
