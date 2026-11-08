@@ -19,7 +19,6 @@
     <img src="https://img.shields.io/badge/Version-v1.0.0-fb6e90?style=flat-square" alt="Version" />
     <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-black?style=flat-square" alt="Platform" />
     <img src="https://img.shields.io/badge/Lyrics-YRC%20Word--Level-ffffff?style=flat-square" alt="YRC" />
-    <img src="https://img.shields.io/badge/Installer%20Size-1.09%20MB-black?style=flat-square" alt="Size" />
     <img src="https://img.shields.io/badge/License-MIT-white?style=flat-square" alt="License" />
   </p>
 </div>
@@ -30,13 +29,13 @@
 
 Most lyrics apps scroll an entire line of text at once. **wavforms** changes that.
 
-It synchronizes to the singer at the **millisecond word level** (**YRC karaoke format**). Each word drops in like a water droplet and ignites with luminescent light and acoustic ripples the exact moment it is sung.
+It synchronizes to the singer at the **millisecond word level** (**YRC format**). Each word drops in like a water droplet and ignites with luminescent light and acoustic ripples the exact moment it is sung.
 
 No subscription, no account, no Spotify clutter. Just drop your songs in and watch the words arrive.
 
 ---
 
-## ⚡ How It Works in 3 Steps
+## How It Works in 3 Steps
 
 1. **Download & Run**: Grab the **[1-Click Windows Setup](https://github.com/securitygeek15/wavforms/releases/latest)** (or Portable ZIP). It sets up a desktop shortcut with the high-res icon.
 2. **Drop Your Music**: Drag and drop any songs or your entire music folder (`.mp3`, `.wav`, `.flac`, `.m4a`, `.ogg`) into the window.
@@ -44,26 +43,26 @@ No subscription, no account, no Spotify clutter. Just drop your songs in and wat
 
 ---
 
-## 🎨 The 2 Core Display Styles
+## The 2 Core Display Styles
 
 Switch styles anytime from the clean top menu bar:
 
 | Style | Preview & Feel |
 | :--- | :--- |
 | **Ship** | **3D Perspective Drift** — Words stack onto a tilted spatial wall that drifts with gentle oceanic depth and camera parallax. |
-| **Visual** | **Kinetic Typography + Emojis** — Words light up with fast-paced velocity, while 200+ matched words trigger floating, bouncy emoji bubbles (`✨`, `💡`, `🌙`, `❤️`, `👀`, `👶`, `🔥`, `🏙️`). |
+| **Visual** | **Kinetic Typography + Dynamic Accents** — Words light up with fast-paced velocity, paired with reactive lyric sentiment animations. |
 
 ---
 
-## ✨ Key Highlights
+## Key Highlights
 
 - **Ocean Drops Liquid Animation**: No walls of 50 lines. Only the current singing line is spotlighted at center stage. Words drop in like fluid raindrops and bloom with radiant light.
 - **Contextual Emotion Color Themes**: Lyric sentiment determines the lighting mood:
-  - 🔥 *Fire, burn, flame, hot* → Flame Crimson
-  - 💧 *Water, ocean, sea, rain, cold* → Aquatic Cyan
-  - ✨ *Lights, shine, star, blinded* → Radiant Gold
-  - 🌙 *Night, sky, moon, dream* → Electric Violet
-  - ❤️ *Love, heart, kiss, touch* → Vibrant Rose Coral
+  - *Fire, burn, flame, hot* → Flame Crimson
+  - *Water, ocean, sea, rain, cold* → Aquatic Cyan
+  - *Lights, shine, star, blinded* → Radiant Gold
+  - *Night, sky, moon, dream* → Electric Violet
+  - *Love, heart, kiss, touch* → Vibrant Rose Coral
 - **Insane Lyric Accuracy**: Uses decoded audio buffer durations (`audio.duration * 1000`) to guarantee matching the exact studio release rather than live or cover cuts.
 - **On-the-Fly Sync Tuning**: Track intro have silence? Press **`[`** or **`]`** to fine-tune the vocal sync by `±100ms` instantly.
 - **Custom Lyrics Support**: Drop your own `.lrc` or `.yrc` file directly on a song to use your personal timings.
@@ -71,7 +70,7 @@ Switch styles anytime from the clean top menu bar:
 
 ---
 
-## ⌨️ Shortcuts Cheat Sheet
+## Shortcuts Cheat Sheet
 
 | Key | Action |
 | :--- | :--- |
@@ -83,7 +82,7 @@ Switch styles anytime from the clean top menu bar:
 
 ---
 
-## 📦 Building From Source (Developers)
+## Building From Source (Developers)
 
 If you prefer building from source:
 
@@ -108,7 +107,7 @@ The resulting `wavforms-Setup-v1.0.0.exe` and `wavforms-v1.0.0-windows-x64.zip` 
 
 ---
 
-## 💬 Frequently Asked Questions
+## Frequently Asked Questions
 
 <details>
 <summary><strong>Where do the word-by-word lyrics come from?</strong></summary>
@@ -132,6 +131,6 @@ All standard audio formats: <code>.mp3</code>, <code>.flac</code>, <code>.wav</c
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
