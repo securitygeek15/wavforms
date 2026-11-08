@@ -45,12 +45,19 @@ if (Test-Path "$stageDir\assets\wavformsshowcase.mp4") {
 if (Test-Path "$stageDir\assets\showcase.gif") {
     Remove-Item -Force "$stageDir\assets\showcase.gif"
 }
+if (Test-Path "$stageDir\public\assets\wavformsshowcase.mp4") {
+    Remove-Item -Force "$stageDir\public\assets\wavformsshowcase.mp4"
+}
+if (Test-Path "$stageDir\public\assets\showcase.gif") {
+    Remove-Item -Force "$stageDir\public\assets\showcase.gif"
+}
 
 # Update root wavforms.exe and native host files
 Copy-Item -Path "$stageDir\wavforms.exe" -Destination "$PSScriptRoot\..\wavforms.exe" -Force
 Copy-Item -Path "$stageDir\wavforms.dll" -Destination "$PSScriptRoot\..\wavforms.dll" -Force
 Copy-Item -Path "$stageDir\wavforms.runtimeconfig.json" -Destination "$PSScriptRoot\..\wavforms.runtimeconfig.json" -Force
 Copy-Item -Path "$stageDir\wavforms.deps.json" -Destination "$PSScriptRoot\..\wavforms.deps.json" -Force
+Copy-Item -Path "$stageDir\Wavforms.Core.dll" -Destination "$PSScriptRoot\..\Wavforms.Core.dll" -Force
 Copy-Item -Path "$stageDir\Microsoft.Web.WebView2.*" -Destination "$PSScriptRoot\.." -Force
 Copy-Item -Path "$stageDir\WebView2Loader.dll" -Destination "$PSScriptRoot\..\WebView2Loader.dll" -Force
 if (Test-Path "$stageDir\runtimes") {

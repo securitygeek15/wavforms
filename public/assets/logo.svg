@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient: Deep Obsidian Void -->
+    <radialGradient id="bg-glow" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#18181b" />
+      <stop offset="60%" stop-color="#09090b" />
+      <stop offset="100%" stop-color="#000000" />
+    </radialGradient>
+
+    <!-- Metallic Platinum Sheen for Wave Bars -->
+    <linearGradient id="wave-grad-center" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="60%" stop-color="#f4f4f5" />
+      <stop offset="100%" stop-color="#d4d4d8" />
+    </linearGradient>
+
+    <linearGradient id="wave-grad-mid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e4e4e7" />
+      <stop offset="100%" stop-color="#a1a1aa" />
+    </linearGradient>
+
+    <linearGradient id="wave-grad-outer" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a1a1aa" />
+      <stop offset="100%" stop-color="#71717a" />
+    </linearGradient>
+
+    <!-- Subtle Ambient Drop Shadow -->
+    <filter id="wave-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.8" />
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#ffffff" flood-opacity="0.12" />
+    </filter>
+
+    <filter id="subtle-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- App Icon Squircle Container -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bg-glow)" stroke="#27272a" stroke-width="2.5" />
+
+  <!-- Inner Subtle Accent Ring -->
+  <rect x="20" y="20" width="472" height="472" rx="108" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1.5" />
+
+  <!-- The "wavforms" Audio Wave 'W' Emblem -->
+  <!-- 7 Harmonious Vertical Soundwave Bars with Sine Modulated Heights and Dynamic Incline Forming 'W' -->
+  <g filter="url(#wave-shadow)">
+    <!-- Bar 1 (Left Wing Peak) -->
+    <rect x="116" y="176" width="28" height="160" rx="14" fill="url(#wave-grad-outer)" opacity="0.85" />
+    
+    <!-- Bar 2 (Left Inner Dip) -->
+    <rect x="160" y="226" width="28" height="110" rx="14" fill="url(#wave-grad-mid)" opacity="0.95" />
+    
+    <!-- Bar 3 (Left Crest) -->
+    <rect x="204" y="156" width="28" height="200" rx="14" fill="url(#wave-grad-center)" />
+    
+    <!-- Bar 4 (Center Valley Pulse - The focal sync dot / micro bar) -->
+    <rect x="248" y="210" width="16" height="92" rx="8" fill="#ffffff" filter="url(#subtle-glow)" />
+
+    <!-- Bar 5 (Right Crest) -->
+    <rect x="280" y="156" width="28" height="200" rx="14" fill="url(#wave-grad-center)" />
+
+    <!-- Bar 6 (Right Inner Dip) -->
+    <rect x="324" y="226" width="28" height="110" rx="14" fill="url(#wave-grad-mid)" opacity="0.95" />
+
+    <!-- Bar 7 (Right Wing Peak) -->
+    <rect x="368" y="176" width="28" height="160" rx="14" fill="url(#wave-grad-outer)" opacity="0.85" />
+  </g>
+
+  <!-- Soundwave Horizon Reference Line (Laser Minimal Accent) -->
+  <circle cx="256" cy="386" r="3" fill="#ffffff" opacity="0.9" />
+  <circle cx="236" cy="386" r="2" fill="#71717a" opacity="0.6" />
+  <circle cx="276" cy="386" r="2" fill="#71717a" opacity="0.6" />
+</svg>
+
