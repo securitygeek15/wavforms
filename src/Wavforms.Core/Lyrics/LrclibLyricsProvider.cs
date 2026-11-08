@@ -15,7 +15,7 @@ public class LrclibLyricsProvider
         _httpClient = httpClient ?? new HttpClient();
         if (!_httpClient.DefaultRequestHeaders.Contains("User-Agent"))
         {
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "wavforms/1.0 (https://github.com/wavforms)");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "wavforms/1.0 (https://github.com/securitygeek15/wavforms)");
         }
     }
 
@@ -24,32 +24,82 @@ public class LrclibLyricsProvider
         var cleanTitle = NcmLyricsProvider.CleanTitle(rawTitle);
         var durSec = (int)Math.Round(durationMs / 1000.0);
 
-        try
+        // 1. Try exact match with /api/get if artist is provided
+        if (!string.IsNullOrWhiteSpace(artist) && !artist.Equals("Local Track", StringComparison.OrdinalIgnoreCase))
         {
-            var url = $"https://lrclib.net/api/get?track_name={Uri.EscapeDataString(cleanTitle)}&artist_name={Uri.EscapeDataString(artist)}";
-            if (durSec > 0)
+            try
             {
-                url += $"&duration={durSec}";
-            }
-
-            var resp = await _httpClient.GetStringAsync(url);
-            using var doc = JsonDocument.Parse(resp);
-
-            if (doc.RootElement.TryGetProperty("syncedLyrics", out var syncedProp))
-            {
-                var syncedLrc = syncedProp.GetString();
-                if (!string.IsNullOrWhiteSpace(syncedLrc))
+                var getUrl = $"https://lrclib.net/api/get?track_name={Uri.EscapeDataString(cleanTitle)}&artist_name={Uri.EscapeDataString(artist)}";
+                if (durSec > 0)
                 {
-                    return LyricsInterpolator.FromLrc(syncedLrc, cleanTitle, artist);
+                    getUrl += $"&duration={durSec}";
+                }
+
+                var resp = await _httpClient.GetStringAsync(getUrl);
+                using var doc = JsonDocument.Parse(resp);
+
+                if (doc.RootElement.TryGetProperty("syncedLyrics", out var syncedProp))
+                {
+                    var syncedLrc = syncedProp.GetString();
+                    if (!string.IsNullOrWhiteSpace(syncedLrc))
+                    {
+                        return LyricsInterpolator.FromLrc(syncedLrc, cleanTitle, artist);
+                    }
                 }
             }
+            catch { }
+        }
 
-            return null;
-        }
-        catch
+        // 2. Search fallback: /api/search?q=... (Crucial for uploaded files)
+        try
         {
-            return null;
+            string searchQuery = string.IsNullOrWhiteSpace(artist) || artist.Equals("Local Track", StringComparison.OrdinalIgnoreCase)
+                ? cleanTitle
+                : $"{cleanTitle} {artist}";
+
+            var searchUrl = $"https://lrclib.net/api/search?q={Uri.EscapeDataString(searchQuery)}";
+            var searchResp = await _httpClient.GetStringAsync(searchUrl);
+            using var searchDoc = JsonDocument.Parse(searchResp);
+
+            if (searchDoc.RootElement.ValueKind == JsonValueKind.Array)
+            {
+                string? bestSyncedLrc = null;
+                double minDurDiff = double.MaxValue;
+
+                foreach (var item in searchDoc.RootElement.EnumerateArray())
+                {
+                    if (item.TryGetProperty("syncedLyrics", out var synProp))
+                    {
+                        var lrcText = synProp.GetString();
+                        if (string.IsNullOrWhiteSpace(lrcText)) continue;
+
+                        double trackDur = item.TryGetProperty("duration", out var dProp) ? dProp.GetDouble() : 0;
+                        if (durSec > 0 && trackDur > 0)
+                        {
+                            double diff = Math.Abs(trackDur - durSec);
+                            if (diff < minDurDiff)
+                            {
+                                minDurDiff = diff;
+                                bestSyncedLrc = lrcText;
+                                if (diff <= 3.0) break; // Perfect duration match!
+                            }
+                        }
+                        else if (bestSyncedLrc == null)
+                        {
+                            bestSyncedLrc = lrcText;
+                            if (durSec == 0) break;
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(bestSyncedLrc))
+                {
+                    return LyricsInterpolator.FromLrc(bestSyncedLrc, cleanTitle, artist);
+                }
+            }
         }
+        catch { }
+
+        return null;
     }
 }
-

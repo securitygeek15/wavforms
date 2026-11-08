@@ -1110,3 +1110,200 @@ body:not(.state-empty):hover .minimal-hud,
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ──── 15 CURATED LYRIC TYPOGRAPHY ENGINES ──── */
+body.font-anton { --font-lyrics: 'Anton', sans-serif; }
+body.font-syne { --font-lyrics: 'Syne', sans-serif; }
+body.font-cinzel { --font-lyrics: 'Cinzel', serif; }
+body.font-plus-jakarta { --font-lyrics: 'Plus Jakarta Sans', sans-serif; }
+body.font-space-grotesk { --font-lyrics: 'Space Grotesk', sans-serif; }
+body.font-bebas-neue { --font-lyrics: 'Bebas Neue', sans-serif; }
+body.font-playfair { --font-lyrics: 'Playfair Display', serif; }
+body.font-outfit { --font-lyrics: 'Outfit', sans-serif; }
+body.font-righteous { --font-lyrics: 'Righteous', cursive; }
+body.font-unbounded { --font-lyrics: 'Unbounded', sans-serif; }
+body.font-oswald { --font-lyrics: 'Oswald', sans-serif; }
+body.font-major-mono { --font-lyrics: 'Major Mono Display', monospace; }
+body.font-italiana { --font-lyrics: 'Italiana', serif; }
+body.font-orbitron { --font-lyrics: 'Orbitron', sans-serif; }
+body.font-jetbrains { --font-lyrics: 'JetBrains Mono', monospace; }
+
+/* Font Picker Component */
+.font-picker-wrap {
+  position: relative;
+}
+
+.font-picker-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  color: #e4e4e7;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(12px);
+}
+
+.font-picker-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.font-btn-glyph {
+  font-weight: 800;
+  font-size: 13px;
+  background: linear-gradient(135deg, #ffffff, #a1a1aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.font-btn-label {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.chevron-icon {
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+}
+
+.font-picker-wrap.open .chevron-icon {
+  transform: rotate(180deg);
+}
+
+.font-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  max-height: 480px;
+  background: rgba(14, 14, 18, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(28px);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.97);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.font-picker-wrap.open .font-dropdown-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.font-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  margin-bottom: 8px;
+}
+
+.font-header-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a1a1aa;
+}
+
+.font-header-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d4d4d8;
+}
+
+.font-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  max-height: 400px;
+  padding-right: 4px;
+}
+
+.font-grid::-webkit-scrollbar {
+  width: 5px;
+}
+
+.font-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+
+.font-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.16s ease;
+}
+
+.font-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.font-item.active {
+  background: rgba(255, 42, 95, 0.12);
+  border-color: rgba(255, 42, 95, 0.35);
+}
+
+.font-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.font-item-preview {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+}
+
+.font-item-tag {
+  font-size: 11px;
+  color: #71717a;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.font-item.active .font-item-tag {
+  color: #fda4af;
+}
+
+.font-item-check {
+  display: none;
+  color: #ff2a5f;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.font-item.active .font-item-check {
+  display: block;
+}

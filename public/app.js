@@ -85,7 +85,8 @@ let playlist = [];
 let currentTrackIndex = -1;
 let currentLyrics = null;
 let activeLineIndex = -1;
-let lyricOffsetMs = 0; // Fine-tuning sync offset
+let lyricOffsetMs = parseInt(localStorage.getItem('wavforms_offset') || '0', 10);
+if (isNaN(lyricOffsetMs)) lyricOffsetMs = 0;
 let isSeeking = false;
 
 // DOM
@@ -119,9 +120,16 @@ const dropOverlay = document.getElementById('drop-overlay');
 // ──── OFFSET CALIBRATION ────
 function updateOffset(deltaMs) {
   lyricOffsetMs += deltaMs;
+  localStorage.setItem('wavforms_offset', lyricOffsetMs.toString());
+  renderOffsetDisplay();
+}
+
+function renderOffsetDisplay() {
+  if (!offsetDisplay) return;
   const sec = (lyricOffsetMs / 1000).toFixed(1);
   offsetDisplay.textContent = `${sec >= 0 ? '+' : ''}${sec}s`;
 }
+renderOffsetDisplay();
 
 document.getElementById('btn-offset-minus').addEventListener('click', () => updateOffset(-100));
 document.getElementById('btn-offset-plus').addEventListener('click', () => updateOffset(100));
@@ -260,18 +268,30 @@ async function loadTrack(index) {
   // Accurate duration wait
   let exactDurationMs = track.durationMs || 0;
   if (!exactDurationMs && audio) {
-    await new Promise(resolve => {
-      if (audio.readyState >= 1) {
-        exactDurationMs = Math.round(audio.duration * 1000);
-        resolve();
-      } else {
-        audio.onloadedmetadata = () => {
-          exactDurationMs = Math.round(audio.duration * 1000);
+    if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
+      exactDurationMs = Math.round(audio.duration * 1000);
+      track.durationMs = exactDurationMs;
+    } else {
+      await new Promise(resolve => {
+        const onReady = () => {
+          if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
+            exactDurationMs = Math.round(audio.duration * 1000);
+            track.durationMs = exactDurationMs;
+          }
+          cleanup();
           resolve();
         };
-        setTimeout(resolve, 800);
-      }
-    });
+        const cleanup = () => {
+          audio.removeEventListener('loadedmetadata', onReady);
+          audio.removeEventListener('canplay', onReady);
+          audio.removeEventListener('durationchange', onReady);
+        };
+        audio.addEventListener('loadedmetadata', onReady);
+        audio.addEventListener('canplay', onReady);
+        audio.addEventListener('durationchange', onReady);
+        setTimeout(() => { cleanup(); resolve(); }, 1200);
+      });
+    }
   }
 
   // Fetch lyrics with exact duration
@@ -339,7 +359,8 @@ function extractArtworkColor(imgUrl) {
 // ──── LYRICS API ────
 async function fetchLyrics(title, artist, durationMs) {
   try {
-    const url = `/api/lyrics?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist || '')}&duration=${durationMs}`;
+    const cleanArtist = (artist && artist !== 'Local Track' && artist !== 'Unknown Artist') ? artist : '';
+    const url = `/api/lyrics?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(cleanArtist)}&duration=${durationMs || 0}`;
     const res = await fetch(url);
     if (!res.ok) return null;
     const data = await res.json();
@@ -812,10 +833,29 @@ async function handleFiles(fileList) {
   }
 
   for (const file of audioFiles) {
-    const clean = file.name.replace(/\.[^/.]+$/, "");
+    let clean = file.name.replace(/\.[^/.]+$/, "");
+    clean = clean.replace(/^\[?\d+\]?[\s.-]+/, '').trim();
+
+    let parsedTitle = clean;
+    let parsedArtist = "";
+
+    if (clean.includes(" - ")) {
+      const parts = clean.split(" - ");
+      parsedArtist = parts[0].trim();
+      parsedTitle = parts.slice(1).join(" - ").trim();
+    } else if (clean.includes(" – ")) {
+      const parts = clean.split(" – ");
+      parsedArtist = parts[0].trim();
+      parsedTitle = parts.slice(1).join(" – ").trim();
+    } else if (clean.includes(" — ")) {
+      const parts = clean.split(" — ");
+      parsedArtist = parts[0].trim();
+      parsedTitle = parts.slice(1).join(" — ").trim();
+    }
+
     const track = {
-      title: clean,
-      artist: "Local Track",
+      title: parsedTitle || clean,
+      artist: parsedArtist,
       file: file,
       durationMs: 0
     };
@@ -1032,3 +1072,90 @@ function updateDiscordRPC(force = false) {
     }
   }).catch(() => {});
 }
+
+// ──── TYPOGRAPHY STUDIO (15 CURATED FONTS) ────
+const FONTS = [
+  { id: 'anton', name: 'Anton', tag: 'Bold Poster Impact', family: "'Anton', sans-serif" },
+  { id: 'syne', name: 'Syne', tag: 'Avant-Garde Luxury', family: "'Syne', sans-serif" },
+  { id: 'cinzel', name: 'Cinzel', tag: 'Imperial Roman', family: "'Cinzel', serif" },
+  { id: 'plus-jakarta', name: 'Plus Jakarta Sans', tag: 'Modern Neo-Grotesque', family: "'Plus Jakarta Sans', sans-serif" },
+  { id: 'space-grotesk', name: 'Space Grotesk', tag: 'Cyber Tech Brutalism', family: "'Space Grotesk', sans-serif" },
+  { id: 'bebas-neue', name: 'Bebas Neue', tag: 'Cinematic Billboard', family: "'Bebas Neue', sans-serif" },
+  { id: 'playfair', name: 'Playfair Display', tag: 'Vogue Editorial Serif', family: "'Playfair Display', serif" },
+  { id: 'outfit', name: 'Outfit', tag: 'Clean Geometric Sans', family: "'Outfit', sans-serif" },
+  { id: 'righteous', name: 'Righteous', tag: 'Retro 80s Synthwave', family: "'Righteous', cursive" },
+  { id: 'unbounded', name: 'Unbounded', tag: 'Futuristic Ultra-Wide', family: "'Unbounded', sans-serif" },
+  { id: 'oswald', name: 'Oswald', tag: 'Modern Gothic Caps', family: "'Oswald', sans-serif" },
+  { id: 'italiana', name: 'Italiana', tag: 'Milan Haute Couture', family: "'Italiana', serif" },
+  { id: 'orbitron', name: 'Orbitron', tag: 'Sci-Fi Cyberpunk', family: "'Orbitron', sans-serif" },
+  { id: 'major-mono', name: 'Major Mono Display', tag: 'Abstract Experimental', family: "'Major Mono Display', monospace" },
+  { id: 'jetbrains', name: 'JetBrains Mono', tag: 'Developer Terminal', family: "'JetBrains Mono', monospace" }
+];
+
+let currentFontId = localStorage.getItem('wavforms_font') || 'anton';
+
+function initTypographyStudio() {
+  const fontPickerWrap = document.getElementById('font-picker-wrap');
+  const btnFontPicker = document.getElementById('btn-font-picker');
+  const fontBtnLabel = document.getElementById('font-btn-label');
+  const fontGrid = document.getElementById('font-grid');
+
+  if (!fontPickerWrap || !fontGrid || !btnFontPicker) return;
+
+  function renderFontGrid() {
+    fontGrid.innerHTML = '';
+    FONTS.forEach(font => {
+      const item = document.createElement('div');
+      item.className = `font-item ${font.id === currentFontId ? 'active' : ''}`;
+      item.innerHTML = `
+        <div class="font-item-info">
+          <span class="font-item-preview" style="font-family: ${font.family}">${font.name}</span>
+          <span class="font-item-tag">${font.tag}</span>
+        </div>
+        <span class="font-item-check">✓</span>
+      `;
+      item.addEventListener('click', () => {
+        applyFont(font.id);
+        fontPickerWrap.classList.remove('open');
+      });
+      fontGrid.appendChild(item);
+    });
+  }
+
+  function applyFont(fontId) {
+    const font = FONTS.find(f => f.id === fontId) || FONTS[0];
+    currentFontId = font.id;
+    localStorage.setItem('wavforms_font', currentFontId);
+
+    FONTS.forEach(f => document.body.classList.remove(`font-${f.id}`));
+    document.body.classList.add(`font-${currentFontId}`);
+
+    if (fontBtnLabel) {
+      fontBtnLabel.textContent = font.name;
+    }
+
+    renderFontGrid();
+  }
+
+  btnFontPicker.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fontPickerWrap.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!fontPickerWrap.contains(e.target)) {
+      fontPickerWrap.classList.remove('open');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      fontPickerWrap.classList.remove('open');
+    }
+  });
+
+  applyFont(currentFontId);
+}
+
+// Initialize typography studio
+initTypographyStudio();

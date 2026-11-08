@@ -50,7 +50,9 @@ public class NcmLyricsProvider
     public async Task<TimedSongLyrics?> FetchLyricsAsync(string rawTitle, string artist, long expectedDurationMs = 0)
     {
         var cleanTitle = CleanTitle(rawTitle);
-        var query = $"{cleanTitle} {artist}".Trim();
+        string query = string.IsNullOrWhiteSpace(artist) || artist.Equals("Local Track", StringComparison.OrdinalIgnoreCase)
+            ? cleanTitle
+            : $"{cleanTitle} {artist}".Trim();
 
         try
         {

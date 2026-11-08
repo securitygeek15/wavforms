@@ -17,11 +17,11 @@ public static class LyricsInterpolator
         {
             Title = title,
             Artist = artist,
-            IsWordLevel = false // Interpolated
+            IsWordLevel = false // Interpolated with high precision
         };
 
         var rawLines = rawLrc.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-        var parsedList = new List<(long startMs, string text)>();
+        var parsedList = new List<(long startMs, string text, long explicitEndMs)>();
 
         foreach (var l in rawLines)
         {
@@ -38,7 +38,16 @@ public static class LyricsInterpolator
 
             if (!string.IsNullOrEmpty(text))
             {
-                parsedList.Add((totalMs, text));
+                parsedList.Add((totalMs, text, 0));
+            }
+            else if (parsedList.Count > 0)
+            {
+                // Empty timestamp indicates instrumental pause / end of vocal phrase
+                var last = parsedList[^1];
+                if (last.explicitEndMs == 0 && totalMs > last.startMs)
+                {
+                    parsedList[^1] = (last.startMs, last.text, totalMs);
+                }
             }
         }
 
@@ -46,36 +55,49 @@ public static class LyricsInterpolator
 
         for (int i = 0; i < parsedList.Count; i++)
         {
-            var (startMs, text) = parsedList[i];
-            long nextStart = (i + 1 < parsedList.Count) ? parsedList[i + 1].startMs : (startMs + 4000);
-            long durationMs = Math.Max(1000, Math.Min(6000, nextStart - startMs));
+            var (startMs, text, explicitEndMs) = parsedList[i];
+            long nextStart = (i + 1 < parsedList.Count) ? parsedList[i + 1].startMs : (startMs + 4500);
+            long gap = nextStart - startMs;
+
+            var tokens = text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (tokens.Length == 0) continue;
+
+            long durMs;
+            if (explicitEndMs > startMs)
+            {
+                durMs = explicitEndMs - startMs;
+            }
+            else if (gap > 4500)
+            {
+                // Cap instrumental break before the next phrase
+                durMs = Math.Min(gap - 600, Math.Max(1200, tokens.Length * 420 + 350));
+            }
+            else
+            {
+                durMs = Math.Max(800, gap - 100);
+            }
 
             var timedLine = new TimedLine
             {
                 StartMs = startMs,
-                DurationMs = durationMs,
+                DurationMs = durMs,
                 Text = text
             };
 
-            // Interpolate words by character weight
-            var tokens = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (tokens.Length > 0)
+            // Interpolate words by character weight for natural singing cadence
+            int totalChars = 0;
+            foreach (var t in tokens) totalChars += Math.Max(1, t.Length);
+
+            long currentWordStart = startMs;
+            for (int t = 0; t < tokens.Length; t++)
             {
-                int totalChars = 0;
-                foreach (var t in tokens) totalChars += Math.Max(1, t.Length);
+                string wordStr = tokens[t];
+                int charWeight = Math.Max(1, wordStr.Length);
+                long wordDur = Math.Max(120, (long)Math.Round((double)charWeight / totalChars * durMs));
 
-                long currentWordStart = startMs;
-                for (int t = 0; t < tokens.Length; t++)
-                {
-                    string wordStr = tokens[t];
-                    int charWeight = Math.Max(1, wordStr.Length);
-                    long wordDur = (long)((double)charWeight / totalChars * durationMs);
-                    if (wordDur < 100) wordDur = 100;
-
-                    var icon = WordVisualResolver.Resolve(wordStr);
-                    timedLine.Words.Add(new TimedWord(currentWordStart, wordDur, wordStr + " ", icon));
-                    currentWordStart += wordDur;
-                }
+                var icon = WordVisualResolver.Resolve(wordStr);
+                timedLine.Words.Add(new TimedWord(currentWordStart, wordDur, wordStr, icon));
+                currentWordStart += wordDur;
             }
 
             lyrics.Lines.Add(timedLine);
@@ -84,4 +106,3 @@ public static class LyricsInterpolator
         return lyrics;
     }
 }
-
