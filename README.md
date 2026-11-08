@@ -54,22 +54,6 @@ Switch styles anytime from the clean top menu bar:
 
 ---
 
-## Key Highlights
-
-- **Ocean Drops Liquid Animation**: No walls of 50 lines. Only the current singing line is spotlighted at center stage. Words drop in like fluid raindrops and bloom with radiant light.
-- **Contextual Emotion Color Themes**: Lyric sentiment determines the lighting mood:
-  - *Fire, burn, flame, hot* → Flame Crimson
-  - *Water, ocean, sea, rain, cold* → Aquatic Cyan
-  - *Lights, shine, star, blinded* → Radiant Gold
-  - *Night, sky, moon, dream* → Electric Violet
-  - *Love, heart, kiss, touch* → Vibrant Rose Coral
-- **Insane Lyric Accuracy**: Uses decoded audio buffer durations (`audio.duration * 1000`) to guarantee matching the exact studio release rather than live or cover cuts.
-- **On-the-Fly Sync Tuning**: Track intro have silence? Press **`[`** or **`]`** to fine-tune the vocal sync by `±100ms` instantly.
-- **Custom Lyrics Support**: Drop your own `.lrc` or `.yrc` file directly on a song to use your personal timings.
-- **Ambient Fullscreen**: Press **`F`** to turn your display or TV into an ambient lock-screen centerpiece.
-
----
-
 ## Shortcuts Cheat Sheet
 
 | Key | Action |
