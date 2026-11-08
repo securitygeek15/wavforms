@@ -2,71 +2,71 @@
 //   wavforms — Fast-Paced Ocean Drops Word-by-Word Engine
 // ═══════════════════════════════════════════════════════════════
 
-// Rich vocabulary mapping with custom emotion colors and emojis
+// Rich vocabulary mapping with custom emotion colors
 const VOCABULARY = {
   // Love & Romance (Rose / Coral)
-  "love": { icon: "❤️", color: "#fb7185" },
-  "heart": { icon: "❤️", color: "#fb7185" },
-  "broken": { icon: "💔", color: "#f43f5e" },
-  "kiss": { icon: "💋", color: "#f43f5e" },
-  "touch": { icon: "✨", color: "#f472b6" },
-  "baby": { icon: "👶", color: "#f472b6" },
-  "sweet": { icon: "🍭", color: "#fb7185" },
-  "crying": { icon: "😢", color: "#60a5fa" },
-  "cry": { icon: "😢", color: "#60a5fa" },
-  "tears": { icon: "💧", color: "#38bdf8" },
+  "love": { color: "#fb7185" },
+  "heart": { color: "#fb7185" },
+  "broken": { color: "#f43f5e" },
+  "kiss": { color: "#f43f5e" },
+  "touch": { color: "#f472b6" },
+  "baby": { color: "#f472b6" },
+  "sweet": { color: "#fb7185" },
+  "crying": { color: "#60a5fa" },
+  "cry": { color: "#60a5fa" },
+  "tears": { color: "#38bdf8" },
 
   // Light, Starlight & Euphoria (Amber / Gold / Violet)
-  "light": { icon: "💡", color: "#facc15" },
-  "lights": { icon: "💡", color: "#facc15" },
-  "blinded": { icon: "✨", color: "#fbbf24" },
-  "shine": { icon: "✨", color: "#fbbf24" },
-  "sun": { icon: "☀️", color: "#f59e0b" },
-  "star": { icon: "⭐", color: "#fbbf24" },
-  "stars": { icon: "✨", color: "#e879f9" },
-  "sky": { icon: "🌌", color: "#c084fc" },
-  "night": { icon: "🌃", color: "#a855f7" },
-  "moon": { icon: "🌙", color: "#e879f9" },
-  "dream": { icon: "💭", color: "#c084fc" },
+  "light": { color: "#facc15" },
+  "lights": { color: "#facc15" },
+  "blinded": { color: "#fbbf24" },
+  "shine": { color: "#fbbf24" },
+  "sun": { color: "#f59e0b" },
+  "star": { color: "#fbbf24" },
+  "stars": { color: "#e879f9" },
+  "sky": { color: "#c084fc" },
+  "night": { color: "#a855f7" },
+  "moon": { color: "#e879f9" },
+  "dream": { color: "#c084fc" },
 
   // Water, Ocean & Cold (Aquatic Cyan / Glacier Blue)
-  "water": { icon: "💧", color: "#00f2fe" },
-  "ocean": { icon: "🌊", color: "#00f2fe" },
-  "sea": { icon: "🌊", color: "#38bdf8" },
-  "wave": { icon: "🌊", color: "#38bdf8" },
-  "drowning": { icon: "🌊", color: "#00f2fe" },
-  "rain": { icon: "🌧️", color: "#38bdf8" },
-  "storm": { icon: "⛈️", color: "#60a5fa" },
-  "cold": { icon: "❄️", color: "#a5f3fc" },
-  "ice": { icon: "❄️", color: "#a5f3fc" },
-  "empty": { icon: "🫙", color: "#94a3b8" },
+  "water": { color: "#00f2fe" },
+  "ocean": { color: "#00f2fe" },
+  "sea": { color: "#38bdf8" },
+  "wave": { color: "#38bdf8" },
+  "drowning": { color: "#00f2fe" },
+  "rain": { color: "#38bdf8" },
+  "storm": { color: "#60a5fa" },
+  "cold": { color: "#a5f3fc" },
+  "ice": { color: "#a5f3fc" },
+  "empty": { color: "#94a3b8" },
 
   // Fire, Heat & Energy (Flame Crimson / Orange)
-  "fire": { icon: "🔥", color: "#ff453a" },
-  "flame": { icon: "🔥", color: "#ff453a" },
-  "burn": { icon: "🔥", color: "#ff5e3a" },
-  "hot": { icon: "🔥", color: "#ff9f0a" },
-  "overdrive": { icon: "⚡", color: "#fbbf24" },
-  "wild": { icon: "⚡", color: "#ff9f0a" },
+  "fire": { color: "#ff453a" },
+  "flame": { color: "#ff453a" },
+  "burn": { color: "#ff5e3a" },
+  "hot": { color: "#ff9f0a" },
+  "overdrive": { color: "#fbbf24" },
+  "wild": { color: "#ff9f0a" },
 
   // Movement, Speed & Action (Emerald / Neon)
-  "run": { icon: "🏃", color: "#34d399" },
-  "running": { icon: "🏃", color: "#34d399" },
-  "walk": { icon: "🚶", color: "#10b981" },
-  "walking": { icon: "🚶", color: "#10b981" },
-  "car": { icon: "🏎️", color: "#34d399" },
-  "drive": { icon: "🚗", color: "#34d399" },
-  "road": { icon: "🛣️", color: "#10b981" },
-  "city": { icon: "🏙️", color: "#38bdf8" },
-  "sleep": { icon: "🌙", color: "#c084fc" },
-  "wake": { icon: "⏰", color: "#facc15" },
-  "time": { icon: "⏳", color: "#facc15" },
-  "phone": { icon: "📱", color: "#38bdf8" },
-  "eyes": { icon: "👁️", color: "#60a5fa" },
-  "look": { icon: "👀", color: "#60a5fa" },
-  "dance": { icon: "💃", color: "#fb7185" },
-  "music": { icon: "🎵", color: "#a855f7" },
-  "song": { icon: "🎶", color: "#a855f7" }
+  "run": { color: "#34d399" },
+  "running": { color: "#34d399" },
+  "walk": { color: "#10b981" },
+  "walking": { color: "#10b981" },
+  "car": { color: "#34d399" },
+  "drive": { color: "#34d399" },
+  "road": { color: "#10b981" },
+  "city": { color: "#38bdf8" },
+  "sleep": { color: "#c084fc" },
+  "wake": { color: "#facc15" },
+  "time": { color: "#facc15" },
+  "phone": { color: "#38bdf8" },
+  "eyes": { color: "#60a5fa" },
+  "look": { color: "#60a5fa" },
+  "dance": { color: "#fb7185" },
+  "music": { color: "#a855f7" },
+  "song": { color: "#a855f7" }
 };
 
 function getWordMeta(rawWord) {
@@ -482,31 +482,24 @@ function getVerciWordType(word, index) {
 
 function buildVerciRowHtml(w, tierClass, index) {
   if (!w) return '';
-  const icon = w.icon || getVerciIcon(w.word);
   const type = w.type || getVerciWordType(w.word, index);
 
   let content = '';
   if (type === 'badge') {
-    // Verci style: silhouette icon on left, tilted hot-pink badge
     content = `
-      ${icon ? icon : ''}
       <div class="verci-badge">
         <span class="verci-badge-text">${w.word}</span>
       </div>
     `;
   } else if (type === 'box') {
-    // Verci style: blush pink highlight box with doodle/signature on right
     content = `
       <div class="verci-box-highlight">
         <span class="verci-box-text">${w.word}</span>
       </div>
-      ${icon ? icon : ''}
     `;
   } else {
-    // Verci style: giant monumental coral-red typography with icon
     content = `
       <span class="verci-word-giant">${w.word}</span>
-      ${icon ? icon : ''}
     `;
   }
 
@@ -783,14 +776,6 @@ function tick() {
         if (!wEl.classList.contains('active')) {
           wEl.classList.add('active');
           wEl.classList.remove('passed');
-
-          const meta = getWordMeta(w.word);
-          if (meta && meta.icon && !wEl.querySelector('.word-emoji')) {
-            const emojiSpan = document.createElement('span');
-            emojiSpan.className = 'word-emoji';
-            emojiSpan.textContent = meta.icon;
-            wEl.appendChild(emojiSpan);
-          }
         }
       } else if (hasPassed) {
         wEl.classList.remove('active');

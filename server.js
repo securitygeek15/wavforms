@@ -467,7 +467,7 @@ const server = http.createServer(async (req, res) => {
         const payload = JSON.parse(body || '{}');
         const startSec = payload.currentSec ? Math.floor(Date.now() / 1000) - Math.floor(payload.currentSec) : Math.floor(Date.now() / 1000);
         const details = payload.title ? `${payload.title}${payload.artist && payload.artist !== 'Local Track' ? ' • ' + payload.artist : ''}` : 'wavforms';
-        const state = payload.lineText ? `♫ "${payload.lineText}"` : 'Word-by-word synchronized lyrics';
+        const state = payload.lineText ? `"${payload.lineText}"` : 'Word-by-word synchronized lyrics';
 
         const sent = setDiscordActivity(details, state, startSec, payload.durationSec, !!payload.paused);
         res.writeHead(200, { 'Content-Type': 'application/json' });

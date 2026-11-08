@@ -294,7 +294,7 @@ static class Program
                     long endEpoch = durationSec > 0 ? (long)(startEpoch + durationSec) : 0;
 
                     string details = $"{title} • {artist}".Trim(' ', '•');
-                    string state = !string.IsNullOrWhiteSpace(currentLyric) ? $"♫ \"{currentLyric}\"" : "";
+                    string state = !string.IsNullOrWhiteSpace(currentLyric) ? currentLyric : "";
 
                     _discordClient.SetActivity(details, state, startEpoch, endEpoch, paused);
                     SendJsonResponse(e, new { ok = true, connected = _discordClient.IsConnected, sent = true });
