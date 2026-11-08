@@ -555,9 +555,98 @@ body:not(.state-empty) .lyric-playback-view {
   transform: translateZ(64px) scale(1.28);
 }
 
-/* 2: VISUAL — Pure Clean Stage */
+/* 2: VISUAL — Fast-Paced Real-Time Dynamic Word Creation Stage */
+.style-visual .ocean-drop-line {
+  font-size: 58px;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+  min-height: 84px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 8px;
+}
+
+/* Dynamic Fast-Paced Word Spawn */
+.style-visual .word-drop.visual-create {
+  animation: visualWordSpawn 0.18s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+
+@keyframes visualWordSpawn {
+  0% {
+    opacity: 0;
+    transform: translateY(-28px) scale(1.45) rotate(-3deg);
+    filter: blur(5px) brightness(2.2);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.12) rotate(1deg);
+    filter: blur(0px) brightness(1.6);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1.22) rotate(0deg);
+    filter: brightness(1.15);
+  }
+}
+
+.style-visual .word-drop.active {
+  color: var(--word-active-color, #ffffff);
+  transform: scale(1.22) translateY(-2px);
+  text-shadow: 0 0 24px var(--word-active-color, rgba(255, 255, 255, 0.9)),
+               0 0 48px var(--word-active-color, rgba(255, 255, 255, 0.5)),
+               0 0 75px var(--word-active-color, rgba(255, 255, 255, 0.25));
+  z-index: 10;
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), text-shadow 0.12s ease;
+}
+
+.style-visual .word-drop.active::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 100%;
+  min-width: 48px;
+  height: 8px;
+  background: radial-gradient(ellipse at center, var(--word-active-color, #ffffff) 0%, transparent 80%);
+  transform: translateX(-50%) scale(1.2);
+  border-radius: 50%;
+  animation: visualSplash 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes visualSplash {
+  0% { transform: translateX(-50%) scale(0.3); opacity: 0; }
+  50% { transform: translateX(-50%) scale(1.4); opacity: 0.95; }
+  100% { transform: translateX(-50%) scale(1.9); opacity: 0.4; }
+}
+
+.style-visual .word-drop.passed {
+  color: rgba(255, 255, 255, 0.5);
+  transform: scale(1) translateY(0);
+  text-shadow: none;
+  filter: none;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .style-visual .word-emoji {
-  filter: drop-shadow(0 0 22px var(--word-active-color, var(--color-highlight)));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  font-size: 46px;
+  animation: visualEmojiBurst 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.35) forwards;
+  filter: drop-shadow(0 0 24px var(--word-active-color, #ffffff));
+  pointer-events: none;
+}
+
+@keyframes visualEmojiBurst {
+  0% { transform: scale(0) translateY(18px) rotate(-22deg); opacity: 0; }
+  70% { transform: scale(1.25) translateY(-4px) rotate(6deg); opacity: 1; }
+  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
 }
 
 /* ──── DRAG & DROP OVERLAY ──── */

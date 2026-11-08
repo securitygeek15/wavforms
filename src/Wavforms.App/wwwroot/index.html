@@ -3,69 +3,184 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>wavforms</title>
+  <title>wavforms — word-by-word synchronized lyrics</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo_icon.svg">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="style-fisheye-visual">
-  <!-- Window Drag Header / Quick Toolbar -->
-  <header class="app-header" data-tauri-drag-region>
-    <div class="brand">
-      <div class="logo-mark">
-        <svg viewBox="0 0 256 256" width="20" height="20">
-          <rect x="24" y="56" width="20" height="112" rx="10" fill="#a1a1aa" opacity="0.8" />
-          <rect x="56" y="92" width="20" height="76" rx="10" fill="#a1a1aa" opacity="0.95" />
-          <rect x="88" y="40" width="20" height="144" rx="10" fill="#ffffff" />
-          <rect x="120" y="78" width="16" height="68" rx="8" fill="#ffffff" />
-          <rect x="148" y="40" width="20" height="144" rx="10" fill="#ffffff" />
-          <rect x="180" y="92" width="20" height="76" rx="10" fill="#a1a1aa" opacity="0.95" />
-          <rect x="212" y="56" width="20" height="112" rx="10" fill="#a1a1aa" opacity="0.8" />
+<body class="style-visual state-empty">
+
+  <!-- Ambient Fluid Light Canvas -->
+  <div class="ocean-water-ambient" id="ocean-ambient"></div>
+  <canvas id="ocean-ripple-canvas" class="ocean-canvas"></canvas>
+
+  <!-- Top Minimalist Verci Glass Menu Bar -->
+  <header class="menu-bar">
+    <div class="menu-left">
+      <div class="brand">
+        <svg viewBox="0 0 100 100" class="brand-glyph" aria-hidden="true">
+          <defs>
+            <linearGradient id="wave-grad" x1="10" y1="10" x2="70" y2="90" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#f4f4f5"/>
+              <stop offset="100%" stop-color="#a1a1aa"/>
+            </linearGradient>
+          </defs>
+          <rect x="12" y="16" width="68" height="12" rx="6" fill="url(#wave-grad)"/>
+          <rect x="12" y="36" width="52" height="12" rx="6" fill="url(#wave-grad)"/>
+          <rect x="12" y="56" width="76" height="12" rx="6" fill="url(#wave-grad)"/>
+          <rect x="12" y="76" width="36" height="12" rx="6" fill="url(#wave-grad)"/>
         </svg>
+        <span class="brand-text">wavforms</span>
       </div>
-      <span class="brand-name">wavforms</span>
-      <span class="player-badge" id="player-badge">Windows GSMTC</span>
+
+      <!-- Current Song Status Pill -->
+      <div class="now-playing-pill" id="track-info-pill">
+        <span class="pill-dot" id="playback-status-dot"></span>
+        <span class="pill-title" id="display-title">Import your songs to start</span>
+        <span class="pill-sep" id="pill-sep" style="display:none;">—</span>
+        <span class="pill-artist" id="display-artist"></span>
+      </div>
     </div>
 
-    <!-- Style Selector Switcher (Same 4 as Verci) -->
-    <div class="style-picker">
-      <button class="style-btn" data-style="ship" title="Ship: 3D perspective wall">Ship</button>
-      <button class="style-btn" data-style="fisheye" title="Fisheye: Real convex lens shader">Fisheye</button>
-      <button class="style-btn" data-style="visual" title="Visual: Inline mapped glyphs">Visual</button>
-      <button class="style-btn active" data-style="fisheye-visual" title="Fisheye Visual: Lens + Glyphs">Fisheye Visual</button>
-    </div>
+    <!-- Center: ONLY SHIP AND VISUAL -->
+    <nav class="style-nav">
+      <button class="nav-item active" data-style="visual">Visual</button>
+      <button class="nav-item" data-style="ship">Ship</button>
+    </nav>
 
-    <!-- Window Actions -->
-    <div class="win-actions">
-      <button id="btn-pin" class="win-btn active" title="Always on Top">📌</button>
-      <button id="btn-min" class="win-btn" title="Minimize">—</button>
-      <button id="btn-close" class="win-btn" title="Hide to Tray">✕</button>
+    <!-- Right Controls -->
+    <div class="menu-right">
+      <!-- Sync Offset Calibrator -->
+      <div class="offset-calibrator" title="Fine-tune Lyric Sync (Hotkeys: [ and ])">
+        <button id="btn-offset-minus" class="offset-btn">-0.1s</button>
+        <span class="offset-val" id="offset-display">0.0s</span>
+        <button id="btn-offset-plus" class="offset-btn">+0.1s</button>
+      </div>
+
+      <!-- Color Auto-Sync / Palette Picker -->
+      <div class="color-well-wrap" title="Palette Accent Color">
+        <input type="color" id="palette-color-picker" value="#fb6e90" class="color-picker-input">
+        <span class="color-dot" id="color-dot"></span>
+      </div>
+
+      <!-- File Upload Button -->
+      <label class="action-btn" title="Upload Audio File">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m6.8 10.6 5.2 5.2 5.2-5.2"/><path d="M4.5 20h15"/></svg>
+        <span>Upload</span>
+        <input type="file" id="file-input" accept="audio/*,.lrc,.yrc" multiple style="display:none;">
+      </label>
+
+      <!-- Music Folder Button -->
+      <label class="action-btn" title="Open Music Folder">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>Folder</span>
+        <input type="file" id="folder-input" webkitdirectory directory multiple style="display:none;">
+      </label>
+
+      <!-- Queue Drawer Toggle -->
+      <button class="action-btn icon-btn" id="btn-queue" title="Queue">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      </button>
+
+      <!-- Ambient Fullscreen -->
+      <button class="action-btn icon-btn" id="btn-fs" title="Fullscreen (F)">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
     </div>
   </header>
 
-  <!-- Now Playing Glass Dock -->
-  <section class="now-playing-bar">
-    <div class="artwork-thumb">
-      <img id="track-art" src="assets/logo.png" alt="Album Cover">
-      <div class="art-glow" id="art-glow"></div>
-    </div>
-    <div class="track-meta">
-      <div class="track-title" id="track-title">Blinding Lights</div>
-      <div class="track-artist" id="track-artist">The Weeknd</div>
-    </div>
-    <div class="time-readout">
-      <span id="time-cur">0:45</span> / <span id="time-total">3:20</span>
-    </div>
-  </section>
+  <!-- Ocean Stage: Single Focused Dropping Line Presentation -->
+  <main class="ocean-stage" id="ocean-stage">
+    
+    <!-- DEDICATED OPENING SCREEN: IMPORT SONGS -->
+    <div class="import-landing" id="import-landing">
+      <div class="import-card">
+        <div class="import-icon-wrap">
+          <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13M9 9l12-2M6 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm12-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+        </div>
+        <h2 class="import-headline">Import Your Songs</h2>
+        <p class="import-subline">Drag and drop audio files or an entire folder to begin real-time word-by-word synchronized playback.</p>
+        
+        <div class="import-buttons">
+          <label class="btn-import primary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/></svg>
+            Select Audio Files
+            <input type="file" id="landing-file-input" accept="audio/*,.lrc,.yrc" multiple style="display:none;">
+          </label>
+          <label class="btn-import secondary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Select Music Folder
+            <input type="file" id="landing-folder-input" webkitdirectory directory multiple style="display:none;">
+          </label>
+        </div>
 
-  <!-- Real-Time Lyric Viewport -->
-  <main class="lyric-stage" id="lyric-stage">
-    <div class="lyrics-viewport" id="lyrics-viewport">
-      <div class="lyrics-track" id="lyrics-track">
-        <!-- Lines and words populated dynamically -->
+        <div class="import-format-pills">
+          <span>MP3</span>
+          <span>FLAC</span>
+          <span>WAV</span>
+          <span>M4A</span>
+          <span>OGG</span>
+          <span>LRC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYBACK LYRIC VIEWPORT -->
+    <div class="lyric-playback-view" id="lyric-playback-view">
+      <!-- Previous line fading away as water vapor -->
+      <div class="line-container prev-line" id="prev-line-container"></div>
+
+      <!-- Active Line: Fast-paced words dropping like droplets -->
+      <div class="line-container active-line" id="active-line-container">
+        <div class="ocean-drop-line" id="current-line"></div>
+      </div>
+
+      <!-- Upcoming line floating underneath like water reflection -->
+      <div class="line-container next-line" id="next-line-container"></div>
+    </div>
+
+    <!-- Drag & Drop Overlay Zone -->
+    <div class="drop-overlay" id="drop-overlay">
+      <div class="drop-content">
+        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="m6.8 10.6 5.2 5.2 5.2-5.2"/><path d="M4.5 20h15"/></svg>
+        <h3>Drop Songs or Music Folder</h3>
+        <p>Supports MP3, WAV, FLAC, M4A, OGG, LRC, YRC. Instant fast-paced sync.</p>
       </div>
     </div>
   </main>
 
+  <!-- Minimalist Hover HUD Playback Scrubber -->
+  <footer class="minimal-hud" id="minimal-hud">
+    <button class="hud-play-btn" id="hud-play" title="Play/Pause (Space)">
+      <svg id="icon-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="icon-pause" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+    
+    <span class="hud-time" id="hud-cur">0:00</span>
+    
+    <div class="hud-scrubber-track" id="hud-track">
+      <div class="hud-scrubber-fill" id="hud-fill"></div>
+    </div>
+
+    <span class="hud-time" id="hud-dur">0:00</span>
+  </footer>
+
+  <!-- Slide-out Playlist Queue Panel -->
+  <aside class="queue-panel" id="queue-panel">
+    <div class="queue-header">
+      <span>Queue (<span id="queue-num">0</span>)</span>
+      <button class="queue-close" id="queue-close">✕</button>
+    </div>
+    <div class="queue-items" id="queue-items">
+      <div class="queue-empty">Drop music files or a folder to build your playlist.</div>
+    </div>
+  </aside>
+
+  <!-- Audio Element -->
+  <audio id="audio" preload="auto"></audio>
+
+  <!-- ID3 Tag Parser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
-

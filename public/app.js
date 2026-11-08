@@ -331,6 +331,76 @@ async function fetchLyrics(title, artist, durationMs) {
   }
 }
 
+let currentStyle = 'visual';
+
+// ──── CANVAS ACOUSTIC WATER SPLASH RIPPLES ────
+const rippleCanvas = document.getElementById('ocean-ripple-canvas');
+const rippleCtx = rippleCanvas ? rippleCanvas.getContext('2d') : null;
+let ripples = [];
+
+function resizeRippleCanvas() {
+  if (!rippleCanvas) return;
+  rippleCanvas.width = window.innerWidth;
+  rippleCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeRippleCanvas);
+resizeRippleCanvas();
+
+function spawnWordSplash(el, color) {
+  if (!rippleCanvas || !el) return;
+  const rect = el.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return;
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
+  ripples.push({
+    x,
+    y,
+    radius: 12,
+    maxRadius: Math.min(Math.max(rect.width * 1.6, 60), 160),
+    opacity: 0.85,
+    color: color || '#ffffff',
+    lineWidth: 2.4
+  });
+}
+
+function renderRipples() {
+  if (!rippleCtx) return;
+  rippleCtx.clearRect(0, 0, rippleCanvas.width, rippleCanvas.height);
+  for (let i = ripples.length - 1; i >= 0; i--) {
+    const r = ripples[i];
+    rippleCtx.save();
+    rippleCtx.beginPath();
+    rippleCtx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+    rippleCtx.strokeStyle = r.color;
+    rippleCtx.globalAlpha = r.opacity;
+    rippleCtx.lineWidth = r.lineWidth;
+    rippleCtx.shadowColor = r.color;
+    rippleCtx.shadowBlur = 16;
+    rippleCtx.stroke();
+    rippleCtx.restore();
+
+    r.radius += 3.4;
+    r.opacity *= 0.89;
+    r.lineWidth *= 0.95;
+
+    if (r.opacity < 0.03 || r.radius > r.maxRadius) {
+      ripples.splice(i, 1);
+    }
+  }
+}
+
+function placeWordInOrder(parent, element, idx) {
+  const children = Array.from(parent.children);
+  for (let i = 0; i < children.length; i++) {
+    const childIdx = parseInt(children[i].id.replace('wd-', ''), 10);
+    if (!isNaN(childIdx) && idx < childIdx) {
+      parent.insertBefore(element, children[i]);
+      return;
+    }
+  }
+  parent.appendChild(element);
+}
+
 // ──── RENDER SINGLE ACTIVE LINE AS FAST-PACED OCEAN DROPS ────
 function renderLineOceanDrops(lineIdx) {
   if (!currentLyrics || !currentLyrics.lines[lineIdx]) return;
@@ -350,27 +420,31 @@ function renderLineOceanDrops(lineIdx) {
     nextLineEl.textContent = '';
   }
 
-  // Active Line: build words with fast-paced snappy drop
+  // Active Line container reset
   currentLineEl.innerHTML = '';
-  line.words.forEach((w, wIdx) => {
-    const wordSpan = document.createElement('span');
-    wordSpan.className = 'word-drop just-dropped';
-    wordSpan.id = `wd-${wIdx}`;
-    wordSpan.textContent = w.word;
 
-    // Attach contextual emotion/aesthetic color
-    const meta = getWordMeta(w.word);
-    if (meta && meta.color) {
-      wordSpan.style.setProperty('--word-active-color', meta.color);
-    }
+  // In Ship mode: pre-render all words on 3D perspective wall
+  if (currentStyle === 'ship') {
+    line.words.forEach((w, wIdx) => {
+      const wordSpan = document.createElement('span');
+      wordSpan.className = 'word-drop just-dropped';
+      wordSpan.id = `wd-${wIdx}`;
+      wordSpan.textContent = w.word;
 
-    currentLineEl.appendChild(wordSpan);
-  });
+      const meta = getWordMeta(w.word);
+      if (meta && meta.color) {
+        wordSpan.style.setProperty('--word-active-color', meta.color);
+      }
+      currentLineEl.appendChild(wordSpan);
+    });
+  }
+  // In Visual mode: words start uncreated and are dynamically spawned word-by-word
 }
 
 // ──── FAST-PACED 60/120 FPS REAL-TIME WORD-BY-WORD SYNC ────
 function tick() {
   requestAnimationFrame(tick);
+  renderRipples();
 
   const curSec = audio.currentTime;
   const curMs = (curSec * 1000) + lyricOffsetMs;
@@ -405,36 +479,88 @@ function tick() {
       renderLineOceanDrops(activeLineIndex);
     }
 
-    // Word lighting in active line: instantaneous onset & snappy velocity
     const activeLine = lines[activeLineIndex];
-    activeLine.words.forEach((w, wIdx) => {
-      const wEl = document.getElementById(`wd-${wIdx}`);
-      if (!wEl) return;
 
-      const isWordActive = curMs >= w.startMs && curMs < (w.startMs + w.durationMs);
-      const hasPassed = curMs >= (w.startMs + w.durationMs);
+    if (currentStyle === 'visual') {
+      // ──── VISUAL MODE: DYNAMICALLY CREATE & PLACE WORDS ON THE FLY ────
+      activeLine.words.forEach((w, wIdx) => {
+        let wEl = document.getElementById(`wd-${wIdx}`);
+        const isWordActive = curMs >= w.startMs && curMs < (w.startMs + w.durationMs);
+        const hasPassed = curMs >= (w.startMs + w.durationMs);
 
-      if (isWordActive) {
-        if (!wEl.classList.contains('active')) {
-          wEl.classList.add('active');
-          wEl.classList.remove('passed');
+        if (curMs >= w.startMs) {
+          if (!wEl) {
+            // Create word and place it dynamically at its exact timestamp
+            wEl = document.createElement('span');
+            wEl.id = `wd-${wIdx}`;
+            wEl.className = 'word-drop visual-create ' + (hasPassed ? 'passed' : 'active');
+            wEl.textContent = w.word;
 
-          // Pop in emoji bubble if matched
-          const meta = getWordMeta(w.word);
-          if (meta && meta.icon && !wEl.querySelector('.word-emoji')) {
-            const emojiSpan = document.createElement('span');
-            emojiSpan.className = 'word-emoji';
-            emojiSpan.textContent = meta.icon;
-            wEl.appendChild(emojiSpan);
+            const meta = getWordMeta(w.word);
+            if (meta && meta.color) {
+              wEl.style.setProperty('--word-active-color', meta.color);
+            }
+            if (meta && meta.icon && !wEl.querySelector('.word-emoji')) {
+              const emojiSpan = document.createElement('span');
+              emojiSpan.className = 'word-emoji';
+              emojiSpan.textContent = meta.icon;
+              wEl.appendChild(emojiSpan);
+            }
+
+            placeWordInOrder(currentLineEl, wEl, wIdx);
+
+            // Trigger acoustic water splash on canvas
+            spawnWordSplash(wEl, meta ? meta.color : null);
+          } else {
+            if (isWordActive) {
+              if (!wEl.classList.contains('active')) {
+                wEl.classList.add('active');
+                wEl.classList.remove('passed');
+              }
+            } else if (hasPassed) {
+              if (!wEl.classList.contains('passed')) {
+                wEl.classList.remove('active');
+                wEl.classList.add('passed');
+              }
+            }
+          }
+        } else {
+          // If scrubber jumped backward before this word started, remove it
+          if (wEl) {
+            wEl.remove();
           }
         }
-      } else if (hasPassed) {
-        wEl.classList.remove('active');
-        wEl.classList.add('passed');
-      } else {
-        wEl.classList.remove('active', 'passed');
-      }
-    });
+      });
+    } else {
+      // ──── SHIP MODE: 3D PERSPECTIVE WALL HIGHLIGHT ────
+      activeLine.words.forEach((w, wIdx) => {
+        const wEl = document.getElementById(`wd-${wIdx}`);
+        if (!wEl) return;
+
+        const isWordActive = curMs >= w.startMs && curMs < (w.startMs + w.durationMs);
+        const hasPassed = curMs >= (w.startMs + w.durationMs);
+
+        if (isWordActive) {
+          if (!wEl.classList.contains('active')) {
+            wEl.classList.add('active');
+            wEl.classList.remove('passed');
+
+            const meta = getWordMeta(w.word);
+            if (meta && meta.icon && !wEl.querySelector('.word-emoji')) {
+              const emojiSpan = document.createElement('span');
+              emojiSpan.className = 'word-emoji';
+              emojiSpan.textContent = meta.icon;
+              wEl.appendChild(emojiSpan);
+            }
+          }
+        } else if (hasPassed) {
+          wEl.classList.remove('active');
+          wEl.classList.add('passed');
+        } else {
+          wEl.classList.remove('active', 'passed');
+        }
+      });
+    }
   }
 }
 requestAnimationFrame(tick);
@@ -607,6 +733,10 @@ document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.body.className = `style-${btn.dataset.style} ${playlist.length === 0 ? 'state-empty' : ''}`;
+    currentStyle = btn.dataset.style;
+    document.body.className = `style-${currentStyle} ${playlist.length === 0 ? 'state-empty' : ''}`;
+    if (activeLineIndex >= 0) {
+      renderLineOceanDrops(activeLineIndex);
+    }
   });
 });
