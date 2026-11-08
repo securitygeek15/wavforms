@@ -449,12 +449,80 @@ function buildVerciRowHtml(w, tierClass, index) {
     `;
   }
 
-  return `<div class="verci-row ${tierClass}" id="vrow-${index}">${content}</div>`;
+  return `<div class="verci-row ${tierClass}" id="vrow-${index}" data-widx="${index}">${content}</div>`;
 }
 
-let lastVisualStackKey = '';
+let currentTrackWIdx = -1;
+let currentTrackLineIdx = -1;
+
+function initVerciTrackForLine(lines, lineIdx) {
+  currentTrackLineIdx = lineIdx;
+  currentTrackWIdx = -1;
+
+  const line = lines[lineIdx];
+  if (!line || !line.words || line.words.length === 0) return;
+
+  let rowsHtml = '';
+
+  // Optional: Last word of previous line (at top)
+  if (lineIdx > 0 && lines[lineIdx - 1].words.length > 0) {
+    const prevWords = lines[lineIdx - 1].words;
+    const lastPrev = prevWords[prevWords.length - 1];
+    rowsHtml += buildVerciRowHtml(lastPrev, 'row-past', 'prev');
+  }
+
+  // Active line words
+  line.words.forEach((w, wIdx) => {
+    rowsHtml += buildVerciRowHtml(w, wIdx === 0 ? 'row-active' : 'row-next', wIdx);
+  });
+
+  // Optional: First word of next line (at bottom)
+  if (lineIdx + 1 < lines.length && lines[lineIdx + 1].words.length > 0) {
+    const firstNext = lines[lineIdx + 1].words[0];
+    rowsHtml += buildVerciRowHtml(firstNext, 'row-next', 'next');
+  }
+
+  currentLineEl.innerHTML = `
+    <div class="verci-kinetic-viewport">
+      <div class="verci-kinetic-track" id="verci-track">
+        ${rowsHtml}
+      </div>
+    </div>
+  `;
+
+  // Position track immediately on first word
+  requestAnimationFrame(() => {
+    alignTrackToWord(0, false);
+  });
+}
+
+function alignTrackToWord(wIdx, animate = true) {
+  const track = document.getElementById('verci-track');
+  const row = document.getElementById(`vrow-${wIdx}`);
+  if (!track || !row) return;
+
+  if (!animate) {
+    track.style.transition = 'none';
+  } else {
+    track.style.transition = 'transform 0.36s cubic-bezier(0.16, 1, 0.3, 1)';
+  }
+
+  const targetY = row.offsetTop + (row.offsetHeight / 2);
+  track.style.transform = `translate3d(0, ${-targetY}px, 0)`;
+
+  if (!animate) {
+    // Re-enable transition on next frame
+    requestAnimationFrame(() => {
+      track.style.transition = 'transform 0.36s cubic-bezier(0.16, 1, 0.3, 1)';
+    });
+  }
+}
 
 function updateVerciVisualStack(lines, activeLineIdx, curMs) {
+  if (activeLineIdx !== currentTrackLineIdx) {
+    initVerciTrackForLine(lines, activeLineIdx);
+  }
+
   const activeLine = lines[activeLineIdx];
   if (!activeLine || !activeLine.words || activeLine.words.length === 0) return;
 
@@ -467,47 +535,28 @@ function updateVerciVisualStack(lines, activeLineIdx, curMs) {
     }
   }
 
-  const stackKey = `${activeLineIdx}-${activeWIdx}`;
-  if (stackKey === lastVisualStackKey) return;
-  lastVisualStackKey = stackKey;
+  if (activeWIdx === currentTrackWIdx) return;
+  currentTrackWIdx = activeWIdx;
 
-  // Build the 3-tier vertical kinetic stack
-  let html = '<div class="verci-vertical-stack">';
+  // Ultra-smooth GPU glide to active word
+  alignTrackToWord(activeWIdx, true);
 
-  // 1. Past Row (Above): word immediately before active, or last word of previous line
-  let pastWord = null;
-  if (activeWIdx > 0) {
-    pastWord = activeLine.words[activeWIdx - 1];
-  } else if (activeLineIdx > 0 && lines[activeLineIdx - 1].words.length > 0) {
-    const prevWords = lines[activeLineIdx - 1].words;
-    pastWord = prevWords[prevWords.length - 1];
-  }
+  // Update tier styling smoothly
+  activeLine.words.forEach((_, idx) => {
+    const rowEl = document.getElementById(`vrow-${idx}`);
+    if (!rowEl) return;
 
-  if (pastWord) {
-    html += buildVerciRowHtml(pastWord, 'row-past', activeWIdx - 1);
-  }
+    if (idx < activeWIdx) {
+      rowEl.className = 'verci-row row-past';
+    } else if (idx === activeWIdx) {
+      rowEl.className = 'verci-row row-active';
+    } else {
+      rowEl.className = 'verci-row row-next';
+    }
+  });
 
-  // 2. Active Row (Center): The currently active word
-  const activeWord = activeLine.words[activeWIdx];
-  html += buildVerciRowHtml(activeWord, 'row-active', activeWIdx);
-
-  // 3. Next Row (Below): Next word in this line, or first word of next line
-  let nextWord = null;
-  if (activeWIdx + 1 < activeLine.words.length) {
-    nextWord = activeLine.words[activeWIdx + 1];
-  } else if (activeLineIdx + 1 < lines.length && lines[activeLineIdx + 1].words.length > 0) {
-    nextWord = lines[activeLineIdx + 1].words[0];
-  }
-
-  if (nextWord) {
-    html += buildVerciRowHtml(nextWord, 'row-next', activeWIdx + 1);
-  }
-
-  html += '</div>';
-  currentLineEl.innerHTML = html;
-
-  // Acoustic splash ripple
-  const activeRowEl = document.querySelector('.verci-row.row-active');
+  // Acoustic splash ripple on active row
+  const activeRowEl = document.getElementById(`vrow-${activeWIdx}`);
   if (activeRowEl) {
     spawnWordSplash(activeRowEl, '#ff2a5f');
   }
@@ -533,11 +582,10 @@ function renderLineOceanDrops(lineIdx) {
   }
 
   // Active Line container reset
-  currentLineEl.innerHTML = '';
-  lastVisualStackKey = '';
-
-  // In Ship mode: pre-render all words on 3D perspective wall
-  if (currentStyle === 'ship') {
+  if (currentStyle === 'visual') {
+    initVerciTrackForLine(currentLyrics.lines, lineIdx);
+  } else {
+    currentLineEl.innerHTML = '';
     line.words.forEach((w, wIdx) => {
       const wordSpan = document.createElement('span');
       wordSpan.className = 'word-drop just-dropped';
