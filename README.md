@@ -82,28 +82,13 @@ Switch styles anytime from the clean top menu bar:
 
 ---
 
-## Building From Source (Developers)
-
-If you prefer building from source:
+## Development
 
 ```bash
-# Clone the repository
 git clone https://github.com/securitygeek15/wavforms.git
 cd wavforms
-
-# 1-Click Launch
-.\run.bat
-
-# Or run via Node
 npm start
 ```
-
-To build the GitHub release installer:
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/build-release.ps1
-```
-
-The resulting `wavforms-Setup-v1.0.0.exe` and `wavforms-v1.0.0-windows-x64.zip` will be generated in `dist/`.
 
 ---
 
