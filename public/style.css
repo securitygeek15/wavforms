@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
 :root {
   --bg-black: #000000;
   --border-subtle: rgba(255, 255, 255, 0.09);
@@ -6,6 +8,7 @@
   --color-text-passed: rgba(255, 255, 255, 0.88);
   --color-highlight: #fb6e90;
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, sans-serif;
+  --font-lyrics: 'Anton', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 * {
@@ -481,6 +484,7 @@ body:not(.state-empty) .lyric-playback-view {
   opacity: 0.16;
   transform: translateY(-20px) scale(0.92);
   filter: blur(4px);
+  font-family: var(--font-lyrics);
   font-size: 24px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.3);
@@ -496,15 +500,17 @@ body:not(.state-empty) .lyric-playback-view {
   opacity: 0.16;
   transform: translateY(20px) scale(0.92);
   filter: blur(3px);
+  font-family: var(--font-lyrics);
   font-size: 24px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.35);
 }
 
 .ocean-drop-line {
-  font-size: 54px;
+  font-family: var(--font-lyrics);
+  font-size: 58px;
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: 0.02em;
   line-height: 1.35;
   display: inline-flex;
   flex-wrap: wrap;
@@ -810,10 +816,11 @@ body:not(.state-empty) .lyric-playback-view {
 
 /* 1. Monumental Giant Hero Word (e.g. "never", "my", "tell", "So", "need") */
 .style-visual .verci-word-giant {
+  font-family: var(--font-lyrics);
   font-size: clamp(92px, 14.5vw, 154px);
   font-weight: 900;
   color: #ff3344;
-  letter-spacing: -0.055em;
+  letter-spacing: 0.02em;
   line-height: 1.0;
   margin: 0 16px;
   text-shadow: 0 0 54px rgba(255, 51, 68, 0.55),
@@ -839,10 +846,11 @@ body:not(.state-empty) .lyric-playback-view {
 }
 
 .style-visual .verci-badge-text {
+  font-family: var(--font-lyrics);
   font-size: clamp(74px, 11.5vw, 120px);
   font-weight: 900;
   font-style: italic;
-  letter-spacing: -0.04em;
+  letter-spacing: 0.01em;
   line-height: 1.02;
   color: #ffffff;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
@@ -863,9 +871,10 @@ body:not(.state-empty) .lyric-playback-view {
 }
 
 .style-visual .verci-box-text {
+  font-family: var(--font-lyrics);
   font-size: clamp(86px, 13.5vw, 146px);
   font-weight: 900;
-  letter-spacing: -0.05em;
+  letter-spacing: 0.01em;
   line-height: 1.05;
   color: #fecdd3; /* blush soft pink */
   text-shadow: 0 0 38px rgba(254, 205, 211, 0.45);
