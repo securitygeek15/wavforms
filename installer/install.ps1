@@ -1,4 +1,4 @@
-﻿# wavforms Aesthetic Windows Installer Script
+# wavforms Aesthetic Windows Installer Script
 param(
     [string]$TargetDir = "$env:LOCALAPPDATA\Programs\wavforms"
 )

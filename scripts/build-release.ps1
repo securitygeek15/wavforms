@@ -1,4 +1,4 @@
-﻿# wavforms Release & Aesthetic Windows Installer Builder
+# wavforms Release & Aesthetic Windows Installer Builder
 $ErrorActionPreference = "Stop"
 
 $version = "1.0.0"
