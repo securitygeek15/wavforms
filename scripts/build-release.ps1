@@ -1,4 +1,4 @@
-# wavforms Release & Aesthetic Windows Installer Builder
+﻿# wavforms Release & Aesthetic Windows Installer Builder
 $ErrorActionPreference = "Stop"
 
 $version = "1.0.0"
@@ -38,6 +38,9 @@ Write-Host "[3/5] Gathering application files into payload..." -ForegroundColor 
 $itemsToCopy = @("public", "assets", "server.js", "package.json", "wavforms.vbs", "run.bat", "run.ps1")
 foreach ($item in $itemsToCopy) {
     Copy-Item -Path $item -Destination $stageDir -Recurse -Force
+}
+if (Test-Path "$stageDir\assets\wavformsshowcase.mp4") {
+    Remove-Item -Force "$stageDir\assets\wavformsshowcase.mp4"
 }
 
 # Also keep root wavforms.exe updated

@@ -21,6 +21,10 @@
     <img src="https://img.shields.io/badge/Lyrics-YRC%20Word--Level-ffffff?style=flat-square" alt="YRC" />
     <img src="https://img.shields.io/badge/License-MIT-white?style=flat-square" alt="License" />
   </p>
+
+  <br />
+
+  <video src="assets/wavformsshowcase.mp4" width="100%" controls autoplay loop muted></video>
 </div>
 
 ---

@@ -1,4 +1,4 @@
-﻿# Publish GitHub Release Script
+# Publish GitHub Release Script
 $ErrorActionPreference = "Stop"
 
 $cred = (echo "protocol=https`nhost=github.com" | git credential fill)
