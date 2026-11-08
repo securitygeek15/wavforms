@@ -229,7 +229,14 @@ static class Program
             }
             finally
             {
-                deferral.Complete();
+                if (InvokeRequired)
+                {
+                    Invoke((MethodInvoker)(() => deferral.Complete()));
+                }
+                else
+                {
+                    deferral.Complete();
+                }
             }
         }
 
@@ -308,6 +315,12 @@ static class Program
 
         private void SendJsonResponse(CoreWebView2WebResourceRequestedEventArgs e, object data, int statusCode = 200)
         {
+            if (InvokeRequired)
+            {
+                Invoke((MethodInvoker)(() => SendJsonResponse(e, data, statusCode)));
+                return;
+            }
+
             string json = JsonSerializer.Serialize(data);
             byte[] bytes = Encoding.UTF8.GetBytes(json);
             var stream = new MemoryStream(bytes);

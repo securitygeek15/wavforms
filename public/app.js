@@ -356,19 +356,121 @@ function extractArtworkColor(imgUrl) {
   };
 }
 
-// ──── LYRICS API ────
+// ──── LYRICS API (MULTI-PROVIDER: IN-PROCESS NATIVE + DIRECT LRCLIB FALLBACK) ────
 async function fetchLyrics(title, artist, durationMs) {
+  const cleanArtist = (artist && artist !== 'Local Track' && artist !== 'Unknown Artist') ? artist : '';
+  const durSec = durationMs ? Math.round(durationMs / 1000) : 0;
+
+  // 1. Try native backend /api/lyrics (NetEase syllable YRC + in-process LRCLIB)
   try {
-    const cleanArtist = (artist && artist !== 'Local Track' && artist !== 'Unknown Artist') ? artist : '';
     const url = `/api/lyrics?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(cleanArtist)}&duration=${durationMs || 0}`;
     const res = await fetch(url);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data && data.lines && data.lines.length > 0 ? data : null;
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.lines && data.lines.length > 0) {
+        return data;
+      }
+    }
   } catch (err) {
-    console.error('Lyric fetch error:', err);
-    return null;
+    console.warn('Native lyric fetch failed, falling back to direct web providers:', err);
   }
+
+  // 2. Direct browser fallback: LRCLIB API (CORS enabled, high-accuracy)
+  try {
+    const query = cleanArtist ? `${title} ${cleanArtist}` : title;
+    const lrcUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(query)}`;
+    const lrcRes = await fetch(lrcUrl);
+    if (lrcRes.ok) {
+      const results = await lrcRes.json();
+      if (Array.isArray(results) && results.length > 0) {
+        let bestSynced = null;
+        let bestPlain = null;
+        let minDiff = Infinity;
+
+        for (const item of results) {
+          if (item.syncedLyrics) {
+            const trackDur = item.duration || 0;
+            if (durSec > 0 && trackDur > 0) {
+              const diff = Math.abs(trackDur - durSec);
+              if (diff < minDiff) {
+                minDiff = diff;
+                bestSynced = item.syncedLyrics;
+                if (diff <= 3) break;
+              }
+            } else if (!bestSynced) {
+              bestSynced = item.syncedLyrics;
+              if (durSec === 0) break;
+            }
+          }
+          if (!bestPlain && item.plainLyrics) {
+            bestPlain = item.plainLyrics;
+          }
+        }
+
+        if (bestSynced) {
+          const parsed = parseLrcText(bestSynced, title);
+          if (parsed && parsed.lines && parsed.lines.length > 0) {
+            return parsed;
+          }
+        }
+
+        // Fallback to smoothly paced plain lyrics
+        if (bestPlain) {
+          const parsed = parsePlainLyricsText(bestPlain, title, durationMs);
+          if (parsed && parsed.lines && parsed.lines.length > 0) {
+            return parsed;
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Direct LRCLIB fetch error:', err);
+  }
+
+  return null;
+}
+
+function parsePlainLyricsText(plainText, title, durationMs) {
+  if (!plainText) return null;
+  const rawLines = plainText.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('[') && !l.startsWith('{'));
+  if (rawLines.length === 0) return null;
+
+  const totalDur = durationMs && durationMs > 30000 ? durationMs : (rawLines.length * 4500);
+  const startOffset = Math.min(10000, Math.round(totalDur / 12));
+  const usableDuration = Math.max(10000, totalDur - startOffset - 5000);
+  const lineStep = Math.max(2200, Math.round(usableDuration / rawLines.length));
+
+  const timedLines = [];
+  for (let i = 0; i < rawLines.length; i++) {
+    const text = rawLines[i];
+    const lineStart = startOffset + (i * lineStep);
+    const lineDur = Math.min(lineStep - 300, Math.max(1200, text.length * 110));
+    const tokens = text.split(/\s+/).filter(Boolean);
+    const totalChars = tokens.reduce((acc, t) => acc + Math.max(1, t.length), 0);
+
+    let curStart = lineStart;
+    const words = tokens.map((t) => {
+      const weight = Math.max(1, t.length);
+      const wDur = Math.max(100, Math.round((weight / Math.max(1, totalChars)) * lineDur));
+      const wObj = { word: t, startMs: curStart, durationMs: wDur, endMs: curStart + wDur };
+      curStart += wDur;
+      return wObj;
+    });
+
+    timedLines.push({
+      startMs: lineStart,
+      durationMs: lineDur,
+      endMs: lineStart + lineDur,
+      text,
+      words
+    });
+  }
+
+  return {
+    title,
+    isWordLevel: false,
+    lines: timedLines
+  };
 }
 
 let currentStyle = 'visual';
@@ -885,14 +987,25 @@ async function handleFiles(fileList) {
 function parseLrcText(lrcText, title) {
   const lines = lrcText.split(/\r?\n/);
   const rawParsed = [];
-  const lrcRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
+  const lrcRegex = /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\](.*)/;
 
   for (const l of lines) {
-    const m = lrcRegex.exec(l.trim());
+    const trimmed = l.trim();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[ti:') || trimmed.startsWith('[ar:') || 
+        trimmed.startsWith('[al:') || trimmed.startsWith('[by:') || trimmed.startsWith('[offset:')) {
+      continue;
+    }
+
+    const m = lrcRegex.exec(trimmed);
     if (!m) continue;
     const min = parseInt(m[1], 10);
     const sec = parseInt(m[2], 10);
-    const ms = m[3].length === 2 ? parseInt(m[3], 10) * 10 : parseInt(m[3], 10);
+    let ms = 0;
+    if (m[3]) {
+      if (m[3].length === 1) ms = parseInt(m[3], 10) * 100;
+      else if (m[3].length === 2) ms = parseInt(m[3], 10) * 10;
+      else ms = parseInt(m[3], 10);
+    }
     const totalMs = min * 60000 + sec * 1000 + ms;
     const text = m[4].trim();
     if (text) {
