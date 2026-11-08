@@ -7,10 +7,10 @@
   <p>Inspired by the minimalist luxury of Verci. Lighting lyrics one word at a time over pitch-black glass.</p>
 
   <p>
-    <a href="https://github.com/wavforms/wavforms/releases/latest">
+    <a href="https://github.com/securitygeek15/wavforms/releases/latest">
       <img src="https://img.shields.io/badge/Download-Windows%20Installer%20(.exe)-ffffff?style=for-the-badge&logo=windows&logoColor=black" alt="Download Windows Installer" />
     </a>
-    <a href="https://github.com/wavforms/wavforms/releases/latest">
+    <a href="https://github.com/securitygeek15/wavforms/releases/latest">
       <img src="https://img.shields.io/badge/Download-Portable%20(.zip)-18181b?style=for-the-badge&logo=zip&logoColor=white" alt="Download Portable" />
     </a>
   </p>
@@ -38,7 +38,7 @@ No subscription, no account, no Spotify clutter. Just drop your songs in and wat
 
 ## ⚡ How It Works in 3 Steps
 
-1. **Download & Run**: Grab the **[1-Click Windows Setup](https://github.com/wavforms/wavforms/releases/latest)** (or Portable ZIP). It sets up a desktop shortcut with the high-res icon.
+1. **Download & Run**: Grab the **[1-Click Windows Setup](https://github.com/securitygeek15/wavforms/releases/latest)** (or Portable ZIP). It sets up a desktop shortcut with the high-res icon.
 2. **Drop Your Music**: Drag and drop any songs or your entire music folder (`.mp3`, `.wav`, `.flac`, `.m4a`, `.ogg`) into the window.
 3. **Enjoy Word-by-Word Lyrics**: `wavforms` automatically extracts the song's title, artist, and embedded cover art, matches the exact studio release, and lights the lyrics in real time.
 
@@ -89,7 +89,7 @@ If you prefer building from source:
 
 ```bash
 # Clone the repository
-git clone https://github.com/wavforms/wavforms.git
+git clone https://github.com/securitygeek15/wavforms.git
 cd wavforms
 
 # 1-Click Launch

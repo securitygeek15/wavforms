@@ -259,7 +259,7 @@ namespace Wavforms.Installer
                         key.SetValue("DisplayIcon", iconPath);
                         key.SetValue("InstallLocation", targetDir);
                         key.SetValue("UninstallString", "\"" + uninstallerExe + "\"");
-                        key.SetValue("URLInfoAbout", "https://github.com/amaan/wavforms");
+                        key.SetValue("URLInfoAbout", "https://github.com/securitygeek15/wavforms");
                         key.SetValue("EstimatedSize", 28000, RegistryValueKind.DWord);
                         key.SetValue("NoModify", 1, RegistryValueKind.DWord);
                         key.SetValue("NoRepair", 1, RegistryValueKind.DWord);
