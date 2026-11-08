@@ -50,7 +50,7 @@ const lyricCache = new Map();
 async function fetchLyrics(rawTitle, rawArtist, expectedDurationMs = 0) {
   const title = cleanTitle(rawTitle);
   const artist = cleanArtist(rawArtist);
-  const cacheKey = `${title.toLowerCase()} - ${artist.toLowerCase()}`;
+  const cacheKey = `${title.toLowerCase()} - ${artist.toLowerCase()} - ${Math.round(expectedDurationMs / 2000)}`;
 
   if (lyricCache.has(cacheKey)) {
     return lyricCache.get(cacheKey);
@@ -61,7 +61,7 @@ async function fetchLyrics(rawTitle, rawArtist, expectedDurationMs = 0) {
   // 1. Primary: NetEase Cloud Music (NCM) YRC Word-by-Word
   try {
     const query = `${title} ${artist}`.trim();
-    const searchUrl = `https://music.163.com/api/search/get?s=${encodeURIComponent(query)}&type=1&offset=0&limit=8`;
+    const searchUrl = `https://music.163.com/api/search/get?s=${encodeURIComponent(query)}&type=1&offset=0&limit=12`;
     const searchRes = await fetch(searchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -74,51 +74,66 @@ async function fetchLyrics(rawTitle, rawArtist, expectedDurationMs = 0) {
       const songs = searchData?.result?.songs || [];
 
       if (songs.length > 0) {
-        // Pick best candidate based on duration match
-        let bestSong = songs[0];
-        let minDiff = Infinity;
+        // Sort songs by duration difference to audio file
+        const sortedSongs = [...songs].sort((a, b) => {
+          if (!expectedDurationMs) return 0;
+          const diffA = Math.abs((a.duration || 0) - expectedDurationMs);
+          const diffB = Math.abs((b.duration || 0) - expectedDurationMs);
+          return diffA - diffB;
+        });
 
-        if (expectedDurationMs > 0) {
-          for (const s of songs) {
-            const songDur = s.duration || 0;
-            const diff = Math.abs(songDur - expectedDurationMs);
-            if (diff < minDiff) {
-              minDiff = diff;
-              bestSong = s;
-              // If within 1.5 seconds, exact match found!
-              if (diff <= 1500) break;
+        // Filter candidates within 4.5s duration difference if duration is known
+        const candidates = (expectedDurationMs > 0)
+          ? sortedSongs.filter(s => Math.abs((s.duration || 0) - expectedDurationMs) <= 4500)
+          : sortedSongs.slice(0, 3);
+
+        // If no candidate is within 4.5s, only inspect the closest if within 7s
+        const validCandidates = candidates.length > 0
+          ? candidates
+          : (expectedDurationMs > 0 && Math.abs((sortedSongs[0].duration || 0) - expectedDurationMs) <= 7000 ? [sortedSongs[0]] : []);
+
+        // Pass 1: Try to find exact YRC (syllable-level word-by-word)
+        for (const cand of validCandidates) {
+          const lyricUrl = `https://music.163.com/api/song/lyric/v1?id=${cand.id}&lv=-1&kv=-1&tv=-1&yv=1&ytv=1&yrv=1`;
+          const lyricRes = await fetch(lyricUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              'Referer': 'https://music.163.com/'
+            }
+          });
+
+          if (lyricRes.ok) {
+            const lyricData = await lyricRes.json();
+            if (lyricData?.yrc?.lyric) {
+              const parsed = parseYrc(lyricData.yrc.lyric, title, artist);
+              if (parsed && parsed.lines && parsed.lines.length > 0) {
+                console.log(`[OK] Found exact NetEase YRC word-level lyrics for "${title}" (${parsed.lines.length} lines, duration diff: ${Math.abs((cand.duration || 0) - expectedDurationMs)}ms)`);
+                lyricCache.set(cacheKey, parsed);
+                return parsed;
+              }
             }
           }
         }
 
-        const lyricUrl = `https://music.163.com/api/song/lyric/v1?id=${bestSong.id}&lv=-1&kv=-1&tv=-1&yv=1&ytv=1&yrv=1`;
-        const lyricRes = await fetch(lyricUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Referer': 'https://music.163.com/'
-          }
-        });
-
-        if (lyricRes.ok) {
-          const lyricData = await lyricRes.json();
-
-          // Check for YRC (word-by-word)
-          if (lyricData?.yrc?.lyric) {
-            const parsed = parseYrc(lyricData.yrc.lyric, title, artist);
-            if (parsed && parsed.lines && parsed.lines.length > 0) {
-              console.log(`[✓] Found exact YRC word-level lyrics (${parsed.lines.length} lines)`);
-              lyricCache.set(cacheKey, parsed);
-              return parsed;
+        // Pass 2: If no YRC, check for LRC from the duration-matched candidates
+        for (const cand of validCandidates) {
+          const lyricUrl = `https://music.163.com/api/song/lyric/v1?id=${cand.id}&lv=-1&kv=-1&tv=-1&yv=1&ytv=1&yrv=1`;
+          const lyricRes = await fetch(lyricUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              'Referer': 'https://music.163.com/'
             }
-          }
+          });
 
-          // Check for LRC (interpolated word-by-word)
-          if (lyricData?.lrc?.lyric) {
-            const parsed = parseLrcWithInterpolation(lyricData.lrc.lyric, title, artist);
-            if (parsed && parsed.lines && parsed.lines.length > 0) {
-              console.log(`[✓] Found NCM LRC synced lyrics (${parsed.lines.length} lines)`);
-              lyricCache.set(cacheKey, parsed);
-              return parsed;
+          if (lyricRes.ok) {
+            const lyricData = await lyricRes.json();
+            if (lyricData?.lrc?.lyric) {
+              const parsed = parseLrcWithInterpolation(lyricData.lrc.lyric, title, artist);
+              if (parsed && parsed.lines && parsed.lines.length > 0) {
+                console.log(`[OK] Found NetEase LRC synced lyrics for "${title}" (${parsed.lines.length} lines)`);
+                lyricCache.set(cacheKey, parsed);
+                return parsed;
+              }
             }
           }
         }
@@ -128,24 +143,39 @@ async function fetchLyrics(rawTitle, rawArtist, expectedDurationMs = 0) {
     console.error('[NCM Error]:', err.message);
   }
 
-  // 2. Global Fallback: LRCLIB API with proportional word interpolation
+  // 2. Global Fallback: LRCLIB API with duration matching
   try {
     const durSec = Math.round(expectedDurationMs / 1000);
-    let lrclibUrl = `https://lrclib.net/api/get?track_name=${encodeURIComponent(title)}&artist_name=${encodeURIComponent(artist)}`;
-    if (durSec > 0) lrclibUrl += `&duration=${durSec}`;
+    const query = `${title} ${artist}`.trim();
 
-    const lrcRes = await fetch(lrclibUrl, {
-      headers: { 'User-Agent': 'wavforms/1.0 (https://github.com/wavforms)' }
+    // Try search endpoint which returns multiple duration candidates
+    const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(query)}`;
+    const lrcRes = await fetch(searchUrl, {
+      headers: { 'User-Agent': 'wavforms/1.0 (https://github.com/securitygeek15/wavforms)' }
     });
 
     if (lrcRes.ok) {
-      const lrcData = await lrcRes.json();
-      if (lrcData?.syncedLyrics) {
-        const parsed = parseLrcWithInterpolation(lrcData.syncedLyrics, title, artist);
-        if (parsed && parsed.lines && parsed.lines.length > 0) {
-          console.log(`[✓] Found LRCLIB synced lyrics (${parsed.lines.length} lines)`);
-          lyricCache.set(cacheKey, parsed);
-          return parsed;
+      const results = await lrcRes.json();
+      if (Array.isArray(results) && results.length > 0) {
+        // Filter those with syncedLyrics
+        const syncedResults = results.filter(r => r.syncedLyrics);
+        if (syncedResults.length > 0) {
+          // Sort by duration match
+          syncedResults.sort((a, b) => {
+            if (!durSec) return 0;
+            return Math.abs((a.duration || 0) - durSec) - Math.abs((b.duration || 0) - durSec);
+          });
+
+          const bestLrc = syncedResults[0];
+          const diffSec = durSec > 0 ? Math.abs((bestLrc.duration || 0) - durSec) : 0;
+          if (durSec === 0 || diffSec <= 4) {
+            const parsed = parseLrcWithInterpolation(bestLrc.syncedLyrics, title, artist);
+            if (parsed && parsed.lines && parsed.lines.length > 0) {
+              console.log(`[OK] Found LRCLIB synced lyrics for "${title}" (${parsed.lines.length} lines, duration diff: ${diffSec}s)`);
+              lyricCache.set(cacheKey, parsed);
+              return parsed;
+            }
+          }
         }
       }
     }
@@ -180,21 +210,25 @@ function parseYrc(rawYrc, title, artist) {
     while ((wordMatch = YRC_WORD_REGEX.exec(wordsContent)) !== null) {
       const wStart = parseInt(wordMatch[1], 10);
       const wDur = parseInt(wordMatch[2], 10);
-      const wText = wordMatch[3];
-      if (wText) {
+      const rawText = wordMatch[3];
+      const wText = rawText.trim();
+      if (wText && wText !== ',' && wText !== '.') {
         words.push({
           word: wText,
           startMs: wStart,
-          durationMs: wDur
+          durationMs: Math.max(120, wDur),
+          endMs: wStart + Math.max(120, wDur)
         });
       }
     }
 
     if (words.length > 0) {
+      const actualLineEnd = words[words.length - 1].endMs;
       result.lines.push({
         startMs: lineStart,
-        durationMs: lineDur,
-        text: words.map(w => w.word).join('').trim(),
+        durationMs: Math.max(lineDur, actualLineEnd - lineStart),
+        endMs: Math.max(lineStart + lineDur, actualLineEnd),
+        text: words.map(w => w.word).join(' ').trim(),
         words
       });
     }
@@ -212,7 +246,7 @@ function parseLrcWithInterpolation(rawLrc, title, artist) {
   };
 
   const lines = rawLrc.split(/\r?\n/);
-  const parsed = [];
+  const rawParsed = [];
 
   for (const l of lines) {
     const m = LRC_REGEX.exec(l.trim());
@@ -226,28 +260,50 @@ function parseLrcWithInterpolation(rawLrc, title, artist) {
     const text = m[4].trim();
 
     if (text) {
-      parsed.push({ startMs: totalMs, text });
+      rawParsed.push({ startMs: totalMs, text, explicitEndMs: 0 });
+    } else if (rawParsed.length > 0) {
+      // Empty line marks silence/end of previous phrase!
+      const last = rawParsed[rawParsed.length - 1];
+      if (!last.explicitEndMs && totalMs > last.startMs) {
+        last.explicitEndMs = totalMs;
+      }
     }
   }
 
-  parsed.sort((a, b) => a.startMs - b.startMs);
+  rawParsed.sort((a, b) => a.startMs - b.startMs);
 
-  for (let i = 0; i < parsed.length; i++) {
-    const item = parsed[i];
-    const nextStart = i + 1 < parsed.length ? parsed[i + 1].startMs : item.startMs + 4000;
-    const durationMs = Math.max(1000, Math.min(6500, nextStart - item.startMs));
+  for (let i = 0; i < rawParsed.length; i++) {
+    const item = rawParsed[i];
+    const nextStart = i + 1 < rawParsed.length ? rawParsed[i + 1].startMs : item.startMs + 4500;
+    const gap = nextStart - item.startMs;
 
-    const tokens = item.text.split(' ');
+    const tokens = item.text.split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) continue;
+
+    // Natural vocal singing duration
+    let durationMs;
+    if (item.explicitEndMs && item.explicitEndMs > item.startMs) {
+      durationMs = item.explicitEndMs - item.startMs;
+    } else if (gap > 4500) {
+      // Long gap: line is followed by instrumental solo/silence
+      durationMs = Math.min(gap - 600, Math.max(1200, tokens.length * 420 + 350));
+    } else {
+      // Continuous line sequence
+      durationMs = Math.max(900, Math.min(6500, gap - 120));
+    }
+
     const totalChars = tokens.reduce((acc, t) => acc + Math.max(1, t.length), 0);
 
     let currentWStart = item.startMs;
-    const words = tokens.map(t => {
+    const words = tokens.map((t, tIdx) => {
       const weight = Math.max(1, t.length);
-      const wDur = Math.max(100, Math.round((weight / totalChars) * durationMs));
+      const isLast = (tIdx === tokens.length - 1);
+      const wDur = Math.max(120, Math.round((weight / totalChars) * durationMs));
       const wordObj = {
-        word: t + ' ',
+        word: t,
         startMs: currentWStart,
-        durationMs: wDur
+        durationMs: wDur,
+        endMs: currentWStart + wDur
       };
       currentWStart += wDur;
       return wordObj;
@@ -256,6 +312,7 @@ function parseLrcWithInterpolation(rawLrc, title, artist) {
     result.lines.push({
       startMs: item.startMs,
       durationMs,
+      endMs: item.startMs + durationMs,
       text: item.text,
       words
     });

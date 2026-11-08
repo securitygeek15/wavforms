@@ -164,6 +164,19 @@ function seekTrack(e) {
   const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
   if (audio.duration) {
     audio.currentTime = ratio * audio.duration;
+    if (currentStyle === 'visual' && unifiedWordStream.length > 0) {
+      const seekMs = (audio.currentTime * 1000) + lyricOffsetMs;
+      let targetIdx = 0;
+      for (let i = 0; i < unifiedWordStream.length; i++) {
+        if (seekMs >= unifiedWordStream[i].startMs) {
+          targetIdx = i;
+        } else {
+          break;
+        }
+      }
+      currentUnifiedWordIdx = targetIdx;
+      alignTrackToWord(targetIdx, false);
+    }
   }
 }
 
@@ -269,7 +282,12 @@ async function loadTrack(index) {
 
   if (currentLyrics && currentLyrics.lines && currentLyrics.lines.length > 0) {
     activeLineIndex = 0;
-    renderLineOceanDrops(0);
+    compileUnifiedWordStream(currentLyrics);
+    if (currentStyle === 'visual') {
+      renderFullVerciTrack();
+    } else {
+      renderLineOceanDrops(0);
+    }
   } else {
     currentLineEl.innerHTML = '<span class="idle-message">No synchronized lyrics found for this song</span>';
   }
@@ -391,10 +409,10 @@ function renderRipples() {
 
 // ──── VERCI SIGNATURE KINETIC VISUAL ENGINE ────
 const VERCI_ICONS = {
-  person: `<svg viewBox="0 0 24 24" class="verci-icon" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`,
+  person: `<svg viewBox="0 0 24 24" class="verci-icon" fill="currentColor"><path d="M12 12c2.4 0 4.4-2 4.4-4.4s-2-4.4-4.4-4.4-4.4 2-4.4 4.4 2 4.4 4.4 4.4zm0 2.4c-2.9 0-8.8 1.5-8.8 4.4v2.4h17.6v-2.4c0-2.9-5.9-4.4-8.8-4.4z"/></svg>`,
   speech: `<svg viewBox="0 0 24 24" class="verci-icon" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>`,
   heart: `<svg viewBox="0 0 24 24" class="verci-icon" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
-  signature: `<svg viewBox="0 0 24 24" class="verci-icon" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M3 16c2-3 5-3 8 0s5 3 8 0"/><path d="M13 5l4 4-7 11H6v-4L13 5z"/></svg>`,
+  signature: `<svg viewBox="0 0 48 32" class="verci-icon" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22l6-8m-6 0l6 8"/><path d="M14 26c3-16 6-16 9 0s6 16 9 0 6-16 9 0"/></svg>`,
   flame: `<svg viewBox="0 0 24 24" class="verci-icon" fill="currentColor"><path d="M12 23c-4.42 0-8-3.58-8-8 0-4.08 3.05-7.44 7-7.93V4c0-.55.45-1 1-1s1 .45 1 1v3.07c3.95.49 7 3.85 7 7.93 0 4.42-3.58 8-8 8zm0-12.93c-2.73.46-4.8 2.82-4.8 5.68 0 3.2 2.6 5.8 5.8 5.8s5.8-2.6 5.8-5.8c0-2.86-2.07-5.22-4.8-5.68V10.07z"/></svg>`,
   star: `<svg viewBox="0 0 24 24" class="verci-icon" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.2L12 16.6 5.7 21.2 8 14l-6-4.6h7.6z"/></svg>`,
   moon: `<svg viewBox="0 0 24 24" class="verci-icon" fill="currentColor"><path d="M12.3 2a10 10 0 0 0-.3 20 10 10 0 0 0 9-5.6 10 10 0 0 1-11-11 10 10 0 0 1 2.3-3.4z"/></svg>`,
@@ -405,44 +423,65 @@ const VERCI_ICONS = {
 function getVerciIcon(word) {
   if (!word) return null;
   const w = word.toLowerCase().replace(/[^a-z]/g, '');
-  if (['you', 'me', 'i', 'we', 'he', 'she', 'baby', 'girl', 'boy', 'man', 'woman'].includes(w)) return VERCI_ICONS.person;
-  if (['tell', 'say', 'speak', 'talk', 'call', 'voice', 'words', 'hear', 'shout'].includes(w)) return VERCI_ICONS.speech;
-  if (['love', 'heart', 'my', 'kiss', 'touch', 'feel', 'forever', 'hold', 'dear'].includes(w)) return VERCI_ICONS.heart;
-  if (['name', 'sign', 'write', 'fame', 'remember', 'read', 'draw', 'track'].includes(w)) return VERCI_ICONS.signature;
-  if (['fire', 'burn', 'flame', 'hot', 'blaze', 'smoke'].includes(w)) return VERCI_ICONS.flame;
+  if (['you', 'me', 'i', 'we', 'he', 'she', 'baby', 'girl', 'boy', 'man', 'woman', 'us'].includes(w)) return VERCI_ICONS.person;
+  if (['tell', 'say', 'speak', 'talk', 'call', 'voice', 'words', 'hear', 'shout', 'sing'].includes(w)) return VERCI_ICONS.speech;
+  if (['love', 'heart', 'need', 'touch', 'feel', 'forever', 'hold', 'dear', 'kiss'].includes(w)) return VERCI_ICONS.heart;
+  if (['name', 'sign', 'write', 'fame', 'remember', 'read', 'draw', 'track', 'mark'].includes(w)) return VERCI_ICONS.signature;
+  if (['fire', 'burn', 'flame', 'hot', 'blaze', 'smoke', 'wild'].includes(w)) return VERCI_ICONS.flame;
   if (['shine', 'star', 'stars', 'light', 'lights', 'glow', 'blinded', 'bright'].includes(w)) return VERCI_ICONS.star;
   if (['night', 'moon', 'midnight', 'dark', 'dream', 'sleep'].includes(w)) return VERCI_ICONS.moon;
   if (['ocean', 'sea', 'water', 'rain', 'tear', 'tears', 'cry', 'drown'].includes(w)) return VERCI_ICONS.droplet;
-  if (['music', 'song', 'sing', 'sound', 'dance', 'beat', 'rhythm'].includes(w)) return VERCI_ICONS.music;
+  if (['music', 'song', 'sound', 'dance', 'beat', 'rhythm'].includes(w)) return VERCI_ICONS.music;
   return null;
 }
 
-function isBadgeWord(word, index) {
-  if (!word) return false;
+function getVerciWordType(word, index) {
+  if (!word) return 'giant';
   const w = word.toLowerCase().replace(/[^a-z']/g, '');
-  const badgeWords = new Set([
+
+  const BADGE_WORDS = new Set([
     'you', 'could', 'on', "i'm", 'im', 'it', 'in', 'me', 'we', 'so', 'can', 'to', 'for', 
     'and', 'is', 'am', 'be', 'up', 'down', 'out', 'all', 'now', 'if', 'at', 'by', 'with', 
-    'no', 'go', 'do', 'too', 'as', 'my', 'he', 'she', 'us', 'the'
+    'no', 'go', 'do', 'too', 'as', 'my', 'he', 'she', 'us', 'the', 'of', 'off', 'but', 'not'
   ]);
-  if (badgeWords.has(w)) return true;
-  return w.length <= 4 && (index % 2 === 1);
+  if (BADGE_WORDS.has(w)) return 'badge';
+
+  const BOX_WORDS = new Set([
+    'name', 'touch', 'night', 'dream', 'eyes', 'face', 'voice', 'kiss', 'heart', 'cold', 
+    'lights', 'sky', 'time', 'world', 'rain', 'tears', 'alone', 'hold'
+  ]);
+  if (BOX_WORDS.has(w)) return 'box';
+
+  if (w.length <= 3 && (index % 2 === 1)) return 'badge';
+  if (w.length >= 4 && w.length <= 6 && (index % 5 === 2)) return 'box';
+
+  return 'giant';
 }
 
 function buildVerciRowHtml(w, tierClass, index) {
   if (!w) return '';
-  const icon = getVerciIcon(w.word);
-  const isBadge = isBadgeWord(w.word, index);
+  const icon = w.icon || getVerciIcon(w.word);
+  const type = w.type || getVerciWordType(w.word, index);
 
   let content = '';
-  if (isBadge) {
+  if (type === 'badge') {
+    // Verci style: silhouette icon on left, tilted hot-pink badge
     content = `
       ${icon ? icon : ''}
       <div class="verci-badge">
         <span class="verci-badge-text">${w.word}</span>
       </div>
     `;
+  } else if (type === 'box') {
+    // Verci style: blush pink highlight box with doodle/signature on right
+    content = `
+      <div class="verci-box-highlight">
+        <span class="verci-box-text">${w.word}</span>
+      </div>
+      ${icon ? icon : ''}
+    `;
   } else {
+    // Verci style: giant monumental coral-red typography with icon
     content = `
       <span class="verci-word-giant">${w.word}</span>
       ${icon ? icon : ''}
@@ -452,45 +491,66 @@ function buildVerciRowHtml(w, tierClass, index) {
   return `<div class="verci-row ${tierClass}" id="vrow-${index}" data-widx="${index}">${content}</div>`;
 }
 
-let currentTrackWIdx = -1;
-let currentTrackLineIdx = -1;
+// Global Unified Word Stream across entire song for seamless kinetic flow
+let unifiedWordStream = [];
+let currentUnifiedWordIdx = -1;
 
-function initVerciTrackForLine(lines, lineIdx) {
-  currentTrackLineIdx = lineIdx;
-  currentTrackWIdx = -1;
+function compileUnifiedWordStream(lyrics) {
+  unifiedWordStream = [];
+  currentUnifiedWordIdx = -1;
 
-  const line = lines[lineIdx];
-  if (!line || !line.words || line.words.length === 0) return;
+  if (!lyrics || !lyrics.lines || lyrics.lines.length === 0) return;
+
+  let globalIdx = 0;
+  lyrics.lines.forEach((line, lineIdx) => {
+    if (!line.words || line.words.length === 0) return;
+
+    line.words.forEach((w) => {
+      const clean = (w.word || '').trim();
+      if (!clean) return;
+
+      const type = getVerciWordType(clean, globalIdx);
+      const icon = getVerciIcon(clean);
+
+      unifiedWordStream.push({
+        gIdx: globalIdx,
+        lineIdx,
+        word: clean,
+        startMs: w.startMs,
+        durationMs: w.durationMs,
+        endMs: w.endMs || (w.startMs + w.durationMs),
+        type,
+        icon
+      });
+      globalIdx++;
+    });
+  });
+}
+
+function renderFullVerciTrack() {
+  currentUnifiedWordIdx = -1;
+
+  if (unifiedWordStream.length === 0) {
+    currentLineEl.innerHTML = '<span class="idle-message">No synchronized lyrics for this song</span>';
+    return;
+  }
 
   let rowsHtml = '';
-
-  // Optional: Last word of previous line (at top)
-  if (lineIdx > 0 && lines[lineIdx - 1].words.length > 0) {
-    const prevWords = lines[lineIdx - 1].words;
-    const lastPrev = prevWords[prevWords.length - 1];
-    rowsHtml += buildVerciRowHtml(lastPrev, 'row-past', 'prev');
-  }
-
-  // Active line words
-  line.words.forEach((w, wIdx) => {
-    rowsHtml += buildVerciRowHtml(w, wIdx === 0 ? 'row-active' : 'row-next', wIdx);
+  unifiedWordStream.forEach((w, idx) => {
+    // Only first word starts as row-next, all others as row-future
+    const tier = idx === 0 ? 'row-next' : 'row-future';
+    rowsHtml += buildVerciRowHtml(w, tier, idx);
   });
 
-  // Optional: First word of next line (at bottom)
-  if (lineIdx + 1 < lines.length && lines[lineIdx + 1].words.length > 0) {
-    const firstNext = lines[lineIdx + 1].words[0];
-    rowsHtml += buildVerciRowHtml(firstNext, 'row-next', 'next');
-  }
-
   currentLineEl.innerHTML = `
-    <div class="verci-kinetic-viewport">
+    <div class="verci-kinetic-viewport" id="verci-viewport">
       <div class="verci-kinetic-track" id="verci-track">
         ${rowsHtml}
       </div>
     </div>
   `;
 
-  // Position track immediately on first word
+  // Align immediately to word 0 without animation
   requestAnimationFrame(() => {
     alignTrackToWord(0, false);
   });
@@ -504,65 +564,100 @@ function alignTrackToWord(wIdx, animate = true) {
   if (!animate) {
     track.style.transition = 'none';
   } else {
-    track.style.transition = 'transform 0.36s cubic-bezier(0.16, 1, 0.3, 1)';
+    track.style.transition = 'transform 0.40s cubic-bezier(0.16, 1, 0.3, 1)';
   }
 
   const targetY = row.offsetTop + (row.offsetHeight / 2);
   track.style.transform = `translate3d(0, ${-targetY}px, 0)`;
 
   if (!animate) {
-    // Re-enable transition on next frame
     requestAnimationFrame(() => {
-      track.style.transition = 'transform 0.36s cubic-bezier(0.16, 1, 0.3, 1)';
+      track.style.transition = 'transform 0.40s cubic-bezier(0.16, 1, 0.3, 1)';
     });
   }
 }
 
-function updateVerciVisualStack(lines, activeLineIdx, curMs) {
-  if (activeLineIdx !== currentTrackLineIdx) {
-    initVerciTrackForLine(lines, activeLineIdx);
-  }
+function updateVerciUnifiedStream(curMs) {
+  const stream = unifiedWordStream;
+  if (!stream || stream.length === 0) return;
 
-  const activeLine = lines[activeLineIdx];
-  if (!activeLine || !activeLine.words || activeLine.words.length === 0) return;
-
-  // Determine active word index in this line
-  let activeWIdx = 0;
-  for (let i = 0; i < activeLine.words.length; i++) {
-    const w = activeLine.words[i];
-    if (curMs >= w.startMs) {
-      activeWIdx = i;
+  // Case 1: Intro before singing starts
+  if (curMs < stream[0].startMs) {
+    if (currentUnifiedWordIdx !== -1) {
+      currentUnifiedWordIdx = -1;
+      alignTrackToWord(0, false);
+      const r0 = document.getElementById('vrow-0');
+      if (r0) r0.className = 'verci-row row-next';
     }
+    return;
   }
 
-  if (activeWIdx === currentTrackWIdx) return;
-  currentTrackWIdx = activeWIdx;
-
-  // Ultra-smooth GPU glide to active word
-  alignTrackToWord(activeWIdx, true);
-
-  // Update tier styling smoothly
-  activeLine.words.forEach((_, idx) => {
-    const rowEl = document.getElementById(`vrow-${idx}`);
-    if (!rowEl) return;
-
-    if (idx < activeWIdx) {
-      rowEl.className = 'verci-row row-past';
-    } else if (idx === activeWIdx) {
-      rowEl.className = 'verci-row row-active';
+  // Case 2: Find active word based on song progress
+  let activeIdx = 0;
+  for (let i = 0; i < stream.length; i++) {
+    if (curMs >= stream[i].startMs) {
+      activeIdx = i;
     } else {
-      rowEl.className = 'verci-row row-next';
+      break;
     }
-  });
+  }
 
-  // Acoustic splash ripple on active row
-  const activeRowEl = document.getElementById(`vrow-${activeWIdx}`);
+  const activeW = stream[activeIdx];
+  const nextW = (activeIdx + 1 < stream.length) ? stream[activeIdx + 1] : null;
+
+  // Instrumental gap check (e.g. musical solo > 1.6s between words)
+  let isInInterlude = false;
+  if (curMs >= activeW.endMs && nextW) {
+    const gap = nextW.startMs - activeW.endMs;
+    if (gap > 1600 && curMs > (activeW.endMs + 350) && curMs < (nextW.startMs - 350)) {
+      isInInterlude = true;
+    }
+  }
+
+  if (isInInterlude) {
+    const activeEl = document.getElementById(`vrow-${activeIdx}`);
+    if (activeEl && activeEl.classList.contains('row-active')) {
+      activeEl.className = 'verci-row row-past';
+    }
+    return;
+  }
+
+  if (activeIdx === currentUnifiedWordIdx) return;
+  currentUnifiedWordIdx = activeIdx;
+
+  // Smooth continuous GPU kinetic glide
+  alignTrackToWord(activeIdx, true);
+
+  // Update styling in local window around active word
+  const winStart = Math.max(0, activeIdx - 5);
+  const winEnd = Math.min(stream.length - 1, activeIdx + 6);
+
+  for (let j = winStart; j <= winEnd; j++) {
+    const rowEl = document.getElementById(`vrow-${j}`);
+    if (!rowEl) continue;
+
+    if (j < activeIdx - 1) {
+      rowEl.className = 'verci-row row-past-far';
+    } else if (j < activeIdx) {
+      rowEl.className = 'verci-row row-past';
+    } else if (j === activeIdx) {
+      rowEl.className = 'verci-row row-active';
+    } else if (j === activeIdx + 1) {
+      rowEl.className = 'verci-row row-next';
+    } else {
+      rowEl.className = 'verci-row row-future';
+    }
+  }
+
+  // Fluid acoustic ripple splash on active word
+  const activeRowEl = document.getElementById(`vrow-${activeIdx}`);
   if (activeRowEl) {
-    spawnWordSplash(activeRowEl, '#ff2a5f');
+    const splashColor = activeW.type === 'badge' ? '#ff2a5f' : (activeW.type === 'box' ? '#fda4af' : '#ff3344');
+    spawnWordSplash(activeRowEl, splashColor);
   }
 }
 
-// ──── RENDER SINGLE ACTIVE LINE AS FAST-PACED OCEAN DROPS ────
+// ──── RENDER SINGLE ACTIVE LINE AS FAST-PACED OCEAN DROPS (FOR SHIP MODE) ────
 function renderLineOceanDrops(lineIdx) {
   if (!currentLyrics || !currentLyrics.lines[lineIdx]) return;
   const line = currentLyrics.lines[lineIdx];
@@ -581,9 +676,8 @@ function renderLineOceanDrops(lineIdx) {
     nextLineEl.textContent = '';
   }
 
-  // Active Line container reset
   if (currentStyle === 'visual') {
-    initVerciTrackForLine(currentLyrics.lines, lineIdx);
+    renderFullVerciTrack();
   } else {
     currentLineEl.innerHTML = '';
     line.words.forEach((w, wIdx) => {
@@ -620,6 +714,13 @@ function tick() {
 
   if (!currentLyrics || !currentLyrics.lines) return;
 
+  // 1: VERCI SIGNATURE KINETIC VISUAL MODE (Continuous unified word flow)
+  if (currentStyle === 'visual') {
+    updateVerciUnifiedStream(curMs);
+    return;
+  }
+
+  // 2: SHIP MODE: 3D PERSPECTIVE WALL HIGHLIGHT
   const lines = currentLyrics.lines;
   let targetLineIdx = -1;
 
@@ -633,47 +734,39 @@ function tick() {
   }
 
   if (targetLineIdx !== -1) {
-    // Fast-paced line transition
     if (targetLineIdx !== activeLineIndex) {
       activeLineIndex = targetLineIdx;
       renderLineOceanDrops(activeLineIndex);
     }
 
     const activeLine = lines[activeLineIndex];
+    activeLine.words.forEach((w, wIdx) => {
+      const wEl = document.getElementById(`wd-${wIdx}`);
+      if (!wEl) return;
 
-    if (currentStyle === 'visual') {
-      // ──── VERCI SIGNATURE KINETIC VERTICAL STACK MODE ────
-      updateVerciVisualStack(lines, activeLineIndex, curMs);
-    } else {
-      // ──── SHIP MODE: 3D PERSPECTIVE WALL HIGHLIGHT ────
-      activeLine.words.forEach((w, wIdx) => {
-        const wEl = document.getElementById(`wd-${wIdx}`);
-        if (!wEl) return;
+      const isWordActive = curMs >= w.startMs && curMs < (w.startMs + w.durationMs);
+      const hasPassed = curMs >= (w.startMs + w.durationMs);
 
-        const isWordActive = curMs >= w.startMs && curMs < (w.startMs + w.durationMs);
-        const hasPassed = curMs >= (w.startMs + w.durationMs);
+      if (isWordActive) {
+        if (!wEl.classList.contains('active')) {
+          wEl.classList.add('active');
+          wEl.classList.remove('passed');
 
-        if (isWordActive) {
-          if (!wEl.classList.contains('active')) {
-            wEl.classList.add('active');
-            wEl.classList.remove('passed');
-
-            const meta = getWordMeta(w.word);
-            if (meta && meta.icon && !wEl.querySelector('.word-emoji')) {
-              const emojiSpan = document.createElement('span');
-              emojiSpan.className = 'word-emoji';
-              emojiSpan.textContent = meta.icon;
-              wEl.appendChild(emojiSpan);
-            }
+          const meta = getWordMeta(w.word);
+          if (meta && meta.icon && !wEl.querySelector('.word-emoji')) {
+            const emojiSpan = document.createElement('span');
+            emojiSpan.className = 'word-emoji';
+            emojiSpan.textContent = meta.icon;
+            wEl.appendChild(emojiSpan);
           }
-        } else if (hasPassed) {
-          wEl.classList.remove('active');
-          wEl.classList.add('passed');
-        } else {
-          wEl.classList.remove('active', 'passed');
         }
-      });
-    }
+      } else if (hasPassed) {
+        wEl.classList.remove('active');
+        wEl.classList.add('passed');
+      } else {
+        wEl.classList.remove('active', 'passed');
+      }
+    });
   }
 }
 requestAnimationFrame(tick);
@@ -696,7 +789,12 @@ async function handleFiles(fileList) {
       body.classList.remove('state-empty');
       currentLyrics = parsed;
       activeLineIndex = 0;
-      renderLineOceanDrops(0);
+      compileUnifiedWordStream(currentLyrics);
+      if (currentStyle === 'visual') {
+        renderFullVerciTrack();
+      } else {
+        renderLineOceanDrops(0);
+      }
       displayTitle.textContent = cleanName;
     }
     return;
@@ -750,7 +848,7 @@ async function handleFiles(fileList) {
 
 function parseLrcText(lrcText, title) {
   const lines = lrcText.split(/\r?\n/);
-  const parsed = [];
+  const rawParsed = [];
   const lrcRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
 
   for (const l of lines) {
@@ -761,30 +859,53 @@ function parseLrcText(lrcText, title) {
     const ms = m[3].length === 2 ? parseInt(m[3], 10) * 10 : parseInt(m[3], 10);
     const totalMs = min * 60000 + sec * 1000 + ms;
     const text = m[4].trim();
-    if (text) parsed.push({ startMs: totalMs, text });
+    if (text) {
+      rawParsed.push({ startMs: totalMs, text, explicitEndMs: 0 });
+    } else if (rawParsed.length > 0) {
+      const last = rawParsed[rawParsed.length - 1];
+      if (!last.explicitEndMs && totalMs > last.startMs) {
+        last.explicitEndMs = totalMs;
+      }
+    }
   }
 
-  if (parsed.length === 0) return null;
-  parsed.sort((a, b) => a.startMs - b.startMs);
+  if (rawParsed.length === 0) return null;
+  rawParsed.sort((a, b) => a.startMs - b.startMs);
 
   const timedLines = [];
-  for (let i = 0; i < parsed.length; i++) {
-    const item = parsed[i];
-    const nextStart = (i + 1 < parsed.length) ? parsed[i + 1].startMs : (item.startMs + 4000);
-    const durMs = Math.max(1000, nextStart - item.startMs);
-    const tokens = item.text.split(' ');
-    const totalChars = tokens.reduce((acc, t) => acc + Math.max(1, t.length), 0);
+  for (let i = 0; i < rawParsed.length; i++) {
+    const item = rawParsed[i];
+    const nextStart = (i + 1 < rawParsed.length) ? rawParsed[i + 1].startMs : (item.startMs + 4500);
+    const gap = nextStart - item.startMs;
+    const tokens = item.text.split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) continue;
 
+    let durMs;
+    if (item.explicitEndMs && item.explicitEndMs > item.startMs) {
+      durMs = item.explicitEndMs - item.startMs;
+    } else if (gap > 4500) {
+      durMs = Math.min(gap - 600, Math.max(1200, tokens.length * 420 + 350));
+    } else {
+      durMs = Math.max(900, Math.min(6500, gap - 120));
+    }
+
+    const totalChars = tokens.reduce((acc, t) => acc + Math.max(1, t.length), 0);
     let curStart = item.startMs;
-    const words = tokens.map(t => {
+    const words = tokens.map((t) => {
       const weight = Math.max(1, t.length);
-      const wDur = Math.max(100, Math.round((weight / totalChars) * durMs));
-      const wObj = { word: t + ' ', startMs: curStart, durationMs: wDur };
+      const wDur = Math.max(120, Math.round((weight / totalChars) * durMs));
+      const wObj = { word: t, startMs: curStart, durationMs: wDur, endMs: curStart + wDur };
       curStart += wDur;
       return wObj;
     });
 
-    timedLines.push({ startMs: item.startMs, durationMs: durMs, text: item.text, words });
+    timedLines.push({
+      startMs: item.startMs,
+      durationMs: durMs,
+      endMs: item.startMs + durMs,
+      text: item.text,
+      words
+    });
   }
 
   return { title, artist: "Custom Lyrics", isWordLevel: false, lines: timedLines };
@@ -848,8 +969,12 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     btn.classList.add('active');
     currentStyle = btn.dataset.style;
     document.body.className = `style-${currentStyle} ${playlist.length === 0 ? 'state-empty' : ''}`;
-    if (activeLineIndex >= 0) {
-      renderLineOceanDrops(activeLineIndex);
+    if (currentLyrics) {
+      if (currentStyle === 'visual') {
+        renderFullVerciTrack();
+      } else if (activeLineIndex >= 0) {
+        renderLineOceanDrops(activeLineIndex);
+      }
     }
   });
 });

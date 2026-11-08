@@ -597,14 +597,14 @@ body:not(.state-empty) .lyric-playback-view {
 /* Kinetic Viewport with Dissolving Top & Bottom Masks */
 .style-visual .verci-kinetic-viewport {
   width: 100%;
-  height: 540px;
+  height: clamp(540px, 76vh, 780px);
   position: relative;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  mask-image: linear-gradient(to bottom, transparent 0%, black 16%, black 84%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 16%, black 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
 }
 
 /* Continuous Kinetic GPU Track */
@@ -617,7 +617,7 @@ body:not(.state-empty) .lyric-playback-view {
   right: 0;
   top: 50%;
   transform: translate3d(0, 0, 0);
-  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.40s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
 }
 
@@ -626,25 +626,26 @@ body:not(.state-empty) .lyric-playback-view {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin: 16px 0;
-  opacity: 0.22;
-  transform: scale(0.78);
+  margin: 22px 0;
+  opacity: 0.18;
+  transform: scale(0.76);
   filter: blur(1.5px);
-  color: #4a0d16;
-  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.36s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.36s cubic-bezier(0.16, 1, 0.3, 1),
-              color 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #400a12;
+  transition: transform 0.40s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.40s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.40s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.40s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity, filter;
+  white-space: nowrap;
 }
 
-/* Tier 1: Past Row (Sliding upward into dark crimson shadow) */
+/* Tier 1: Past Row (Sliding upward into dark burgundy shadow) */
 .style-visual .verci-row.row-past {
-  opacity: 0.32;
-  transform: scale(0.82);
-  filter: blur(0.6px);
+  opacity: 0.36;
+  transform: scale(0.82) translateY(-4px);
+  filter: blur(0.5px);
   color: #7a1523;
-  z-index: 1;
+  z-index: 2;
 }
 
 .style-visual .verci-row.row-past .verci-word-giant {
@@ -653,121 +654,190 @@ body:not(.state-empty) .lyric-playback-view {
 }
 
 .style-visual .verci-row.row-past .verci-badge {
-  background: rgba(225, 29, 72, 0.25);
+  background: rgba(225, 29, 72, 0.28);
   box-shadow: none;
+  transform: skewX(-7deg) rotate(-1.5deg) scale(0.9);
 }
 
 .style-visual .verci-row.row-past .verci-badge-text {
   color: rgba(255, 255, 255, 0.45);
 }
 
-.style-visual .verci-row.row-past .verci-icon {
-  opacity: 0.28;
-  filter: none;
-  transform: scale(0.85);
+.style-visual .verci-row.row-past .verci-box-highlight {
+  background: rgba(140, 18, 38, 0.22);
 }
 
-/* Tier 2: Active Singing Row (Giant scale, explosive focus) */
+.style-visual .verci-row.row-past .verci-box-text {
+  color: rgba(254, 205, 211, 0.4);
+  text-shadow: none;
+}
+
+.style-visual .verci-row.row-past .verci-icon {
+  opacity: 0.32;
+  filter: none;
+  transform: scale(0.82);
+}
+
+/* Far Past Row (Nearly gone into dark void) */
+.style-visual .verci-row.row-past-far {
+  opacity: 0.12;
+  transform: scale(0.68) translateY(-14px);
+  filter: blur(2px);
+  color: #30060c;
+  z-index: 1;
+}
+
+/* Tier 2: Active Singing Row (Giant monumental scale, explosive focus) */
 .style-visual .verci-row.row-active {
   opacity: 1;
-  transform: scale(1.12);
+  transform: scale(1.14);
   filter: blur(0px);
   z-index: 10;
 }
 
 .style-visual .verci-row.row-active .verci-badge {
-  transform: skewX(-10deg) rotate(-2deg) scale(1.04);
-  box-shadow: 0 14px 54px rgba(255, 42, 95, 0.8);
+  transform: skewX(-9deg) rotate(-2deg) scale(1.04);
+  box-shadow: 0 16px 54px rgba(255, 42, 95, 0.85);
 }
 
 .style-visual .verci-row.row-active .verci-icon {
-  transform: scale(1.1);
-  animation: verciIconPulse 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.3) forwards;
+  transform: scale(1.14);
+  animation: verciIconPulse 0.36s cubic-bezier(0.175, 0.885, 0.32, 1.3) forwards;
 }
 
 @keyframes verciIconPulse {
-  0% { transform: scale(0.85) rotate(-10deg); }
-  65% { transform: scale(1.2) rotate(4deg); }
-  100% { transform: scale(1.1) rotate(0deg); }
+  0% { transform: scale(0.85) rotate(-12deg); }
+  65% { transform: scale(1.22) rotate(4deg); }
+  100% { transform: scale(1.14) rotate(0deg); }
 }
 
 /* Tier 3: Next Row (Upcoming word waiting right below) */
 .style-visual .verci-row.row-next {
-  opacity: 0.22;
-  transform: scale(0.78);
+  opacity: 0.24;
+  transform: scale(0.76) translateY(4px);
   filter: blur(1.2px);
-  color: #4a0d16;
+  color: #400a12;
   z-index: 2;
 }
 
 .style-visual .verci-row.row-next .verci-word-giant {
-  color: #4a0d16;
+  color: #400a12;
   text-shadow: none;
 }
 
 .style-visual .verci-row.row-next .verci-badge {
-  background: rgba(225, 29, 72, 0.18);
+  background: rgba(225, 29, 72, 0.2);
   box-shadow: none;
+  transform: skewX(-7deg) rotate(-1.5deg) scale(0.9);
 }
 
 .style-visual .verci-row.row-next .verci-badge-text {
   color: rgba(255, 255, 255, 0.3);
 }
 
+.style-visual .verci-row.row-next .verci-box-highlight {
+  background: rgba(140, 18, 38, 0.18);
+}
+
+.style-visual .verci-row.row-next .verci-box-text {
+  color: rgba(254, 205, 211, 0.3);
+  text-shadow: none;
+}
+
 .style-visual .verci-row.row-next .verci-icon {
-  opacity: 0.2;
+  opacity: 0.22;
   filter: none;
   transform: scale(0.8);
 }
 
-/* Massive Giant Display Word (e.g. "So", "never", "my", "tell", "name") */
+/* Future Rows (Hidden for maximum 120 FPS performance) */
+.style-visual .verci-row.row-future {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.68) translateY(20px);
+}
+
+/* Instrumental Interlude State */
+.style-visual .verci-row.row-interlude {
+  opacity: 0.38;
+  transform: scale(0.88);
+  filter: blur(0.4px);
+}
+
+/* 1. Monumental Giant Hero Word (e.g. "never", "my", "tell", "So", "need") */
 .style-visual .verci-word-giant {
-  font-size: clamp(84px, 13vw, 138px);
+  font-size: clamp(92px, 14.5vw, 154px);
   font-weight: 900;
   color: #ff3344;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.055em;
   line-height: 1.0;
   margin: 0 16px;
   text-shadow: 0 0 54px rgba(255, 51, 68, 0.55),
-               0 0 100px rgba(255, 51, 68, 0.25);
+               0 0 110px rgba(255, 51, 68, 0.25);
   will-change: transform, color, opacity;
 }
 
-/* Massive Tilted Highlight Badge (e.g. "you", "could", "on", "I'm") */
+/* 2. Massive Tilted Highlight Badge (e.g. "you", "could", "on", "I'm", "it") */
 .style-visual .verci-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: #ff2a5f;
   color: #ffffff;
-  padding: 8px 38px;
-  border-radius: 12px;
-  margin: 4px 14px;
-  transform: skewX(-10deg) rotate(-2deg);
-  box-shadow: 0 12px 48px rgba(255, 42, 95, 0.7);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 10px 42px;
+  border-radius: 14px;
+  margin: 4px 16px;
+  transform: skewX(-9deg) rotate(-2deg);
+  box-shadow: 0 14px 50px rgba(255, 42, 95, 0.72);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
 }
 
 .style-visual .verci-badge-text {
-  font-size: clamp(72px, 11vw, 116px);
+  font-size: clamp(74px, 11.5vw, 120px);
   font-weight: 900;
   font-style: italic;
   letter-spacing: -0.04em;
-  line-height: 1.0;
+  line-height: 1.02;
   color: #ffffff;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Massive Vector Silhouette Glyph (Person, Heart, Speech bubble, Signature) */
+/* 3. Blush Highlight Box (e.g. "name", "feel", "touch", "night") */
+.style-visual .verci-box-highlight {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(140, 18, 38, 0.52);
+  border-radius: 12px;
+  padding: 6px 34px;
+  margin: 4px 14px;
+  transform: skewX(-4deg);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.style-visual .verci-box-text {
+  font-size: clamp(86px, 13.5vw, 146px);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+  color: #fecdd3; /* blush soft pink */
+  text-shadow: 0 0 38px rgba(254, 205, 211, 0.45);
+}
+
+/* Massive Vector Silhouette Glyph (Person, Heart, Speech bubble, Signature, Doodle) */
 .style-visual .verci-icon {
-  width: 72px;
-  height: 72px;
-  margin: 0 18px;
-  color: #ff4d6d;
-  filter: drop-shadow(0 0 24px rgba(255, 77, 109, 0.75));
+  width: clamp(52px, 6.5vw, 76px);
+  height: clamp(52px, 6.5vw, 76px);
+  margin: 0 16px;
+  color: #ff2a5f;
+  filter: drop-shadow(0 0 22px rgba(255, 42, 95, 0.7));
   flex-shrink: 0;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-block;
+  vertical-align: middle;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ──── DRAG & DROP OVERLAY ──── */
