@@ -22,9 +22,11 @@
     <img src="https://img.shields.io/badge/License-MIT-white?style=flat-square" alt="License" />
   </p>
 
-  <br />
-
-  <video src="assets/wavformsshowcase.mp4" width="100%" controls autoplay loop muted></video>
+  <p align="center">
+    <a href="https://github.com/securitygeek15/wavforms/releases/download/v1.0.0/wavformsshowcase.mp4">
+      <img src="assets/showcase.gif" alt="wavforms word-by-word synchronized lyrics showcase" width="100%" style="border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.85);" />
+    </a>
+  </p>
 </div>
 
 ---
