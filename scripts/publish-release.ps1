@@ -62,7 +62,8 @@ $uploadUrlTemplate = $release.upload_url
 $assets = @(
     @{ Path = "dist\wavforms-Setup.exe"; ContentType = "application/octet-stream"; Name = "wavforms-Setup.exe" },
     @{ Path = "dist\wavforms-Setup-v1.0.0.exe"; ContentType = "application/octet-stream"; Name = "wavforms-Setup-v1.0.0.exe" },
-    @{ Path = "dist\wavforms-v1.0.0-windows-x64.zip"; ContentType = "application/zip"; Name = "wavforms-v1.0.0-windows-x64.zip" }
+    @{ Path = "dist\wavforms-v1.0.0-windows-x64.zip"; ContentType = "application/zip"; Name = "wavforms-v1.0.0-windows-x64.zip" },
+    @{ Path = "assets\wavformsshowcase.mp4"; ContentType = "video/mp4"; Name = "wavformsshowcase.mp4" }
 )
 
 foreach ($asset in $assets) {
