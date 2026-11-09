@@ -3,8 +3,8 @@
   
   # wavforms
   
-  <p><strong>Word-by-word real-time synchronized lyrics on Windows.</strong></p>
-  <p>Inspired by the minimalist luxury of Verci. Lighting lyrics one word at a time over pitch-black glass.</p>
+  <p><strong>Word-by-word real-time synchronized lyrics & MilkDrop 3 WebGL visualizer on Windows.</strong></p>
+  <p>Inspired by the minimalist luxury of Verci. Lighting lyrics one word at a time over pitch-black glass & psychedelic audio reactive visuals.</p>
 
   <p>
     <a href="https://github.com/securitygeek15/wavforms/releases/latest">
@@ -19,6 +19,7 @@
     <img src="https://img.shields.io/badge/Version-v1.0.0-fb6e90?style=flat-square" alt="Version" />
     <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-black?style=flat-square" alt="Platform" />
     <img src="https://img.shields.io/badge/Lyrics-YRC%20Word--Level-ffffff?style=flat-square" alt="YRC" />
+    <img src="https://img.shields.io/badge/Visualizer-MilkDrop%203-ff007f?style=flat-square" alt="MilkDrop 3" />
     <img src="https://img.shields.io/badge/Discord-Rich%20Presence-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord RPC" />
     <img src="https://img.shields.io/badge/License-MIT-white?style=flat-square" alt="License" />
   </p>
@@ -38,7 +39,9 @@ Most lyrics apps scroll an entire line of text at once. **wavforms** changes tha
 
 It synchronizes to the singer at the **millisecond word level** (**YRC format**). Each word drops in like a water droplet and ignites with luminescent light and acoustic ripples the exact moment it is sung.
 
-No subscription, no account, no Spotify clutter. Just drop your songs in and watch the words arrive.
+Combined with an integrated **MilkDrop 3 WebGL visualizer engine**, wavforms turns any music track into a hypnotic audio-reactive visual showcase powered by 367 classic and crazy visual presets.
+
+No subscription, no account, no Spotify clutter. Just drop your songs in and experience your music.
 
 ---
 
@@ -46,18 +49,31 @@ No subscription, no account, no Spotify clutter. Just drop your songs in and wat
 
 1. **Download & Run**: Grab the **[1-Click Windows Setup](https://github.com/securitygeek15/wavforms/releases/latest)** (or Portable ZIP). It sets up a desktop shortcut with the high-res icon.
 2. **Drop Your Music**: Drag and drop any songs or your entire music folder (`.mp3`, `.wav`, `.flac`, `.m4a`, `.ogg`) into the window.
-3. **Enjoy Word-by-Word Lyrics**: `wavforms` automatically extracts the song's title, artist, and embedded cover art, matches the exact studio release, and lights the lyrics in real time.
+3. **Experience the Music**: `wavforms` automatically extracts the song's title, artist, and embedded cover art, matches the exact studio release, and lights the lyrics or audio visuals in real time.
 
 ---
 
-## The 2 Core Display Styles
+## The 3 Display Modes
 
-Switch styles anytime from the clean top menu bar:
+Switch styles anytime from the clean top navigation bar:
 
-| Style | Preview & Feel |
-| :--- | :--- |
-| **Ship** | **3D Perspective Drift** — Words stack onto a tilted spatial wall that drifts with gentle oceanic depth and camera parallax. |
-| **Visual** | **Kinetic Typography + Dynamic Accents** — Words light up with fast-paced velocity, paired with reactive lyric sentiment animations. |
+| Mode | Type | Experience |
+| :--- | :--- | :--- |
+| **Visual** | Kinetic Typography | **Velocity & Dynamic Accents** — Words light up with fast-paced velocity, paired with reactive lyric sentiment animations. |
+| **Ship** | 3D Spatial Drift | **Perspective Wall** — Words stack onto a tilted spatial wall that drifts with gentle oceanic depth and camera parallax. |
+| **Audio Visuals** | MilkDrop 3 WebGL | **Audio-Reactive Visualizer** — Pure full-screen MilkDrop 3 experience driven by live audio frequencies across 367 presets with 2.7s smooth crossfades. |
+
+---
+
+## MilkDrop 3 Visualizer Engine
+
+Built directly on hardware-accelerated WebGL2 (Butterchurn), wavforms includes **367 curated presets** bundled completely offline from legendary demoscene and MilkDrop creators:
+
+- **Featured Preset Creators**: Martin, Flexi, Ryan Geiss, Rovastar, Zylot, Unchained, Aderrasi, $$$ Royal, shifter, and more.
+- **Preset Studio Drawer (`V`)**: Open the slide-out catalog to search, filter by author, or switch presets instantly.
+- **Audio-Reactive Spectrum**: Fed directly from the audio playback pipeline with real-time waveform analysis.
+- **Auto-Cycle Mode (`L`)**: Automatically crossfades to a new preset every 15 seconds for continuous hands-free visual journeys.
+- **Random Jump (`R`)**: Instant crossfade to an unexpected visual preset.
 
 ---
 
@@ -72,13 +88,17 @@ Switch styles anytime from the clean top menu bar:
 
 ## Shortcuts Cheat Sheet
 
-| Key | Action |
-| :--- | :--- |
-| `Space` | **Play / Pause** |
-| `←` / `→` | **Seek backward / forward 5s** |
-| `[` / `]` | **Fine-tune Lyric Sync** (±100ms offset) |
-| `F` | **Toggle Fullscreen Mode** |
-| `Drag & Drop` | **Import songs, music folder, or custom lyric files** |
+| Key | Context | Action |
+| :--- | :--- | :--- |
+| `Space` | Any | **Play / Pause** (or cycle preset in visualizer) |
+| `←` / `→` | Any | **Seek backward / forward 5s** |
+| `F` | Any | **Toggle Fullscreen Mode** |
+| `V` | Visualizer | **Open / Close Preset Studio Drawer** |
+| `R` | Visualizer | **Random Preset Jump** (with smooth 2.7s crossfade) |
+| `L` | Visualizer | **Toggle Auto-Cycle Mode** (15s rotation) |
+| `[` / `]` | Visualizer | **Previous / Next Preset** |
+| `[` / `]` | Lyrics | **Fine-tune Lyric Sync** (±100ms offset) |
+| `Drag & Drop` | Any | **Import songs, music folder, or custom lyric files** |
 
 ---
 
@@ -114,7 +134,13 @@ Yes! Drop any <code>.lrc</code> or <code>.yrc</code> file alongside your songs (
 </details>
 
 <details>
-<summary><strong>What formats are supported?</strong></summary>
+<summary><strong>Are MilkDrop 3 presets downloaded online?</strong></summary>
+<br>
+No. All 367 MilkDrop 3 presets and texture assets are bundled directly inside the local application, making the visualizer 100% offline-ready with zero latency.
+</details>
+
+<details>
+<summary><strong>What audio formats are supported?</strong></summary>
 <br>
 All standard audio formats: <code>.mp3</code>, <code>.flac</code>, <code>.wav</code>, <code>.m4a</code>, <code>.ogg</code>, and <code>.aac</code>.
 </details>
