@@ -823,6 +823,8 @@ function renderLineOceanDrops(lineIdx) {
     renderFullVerciTrack();
   } else {
     currentLineEl.innerHTML = '';
+    currentLineEl.classList.toggle('line-dense', line.words.length > 8);
+    currentLineEl.classList.toggle('line-ultra-dense', line.words.length > 13);
     line.words.forEach((w, wIdx) => {
       const wordSpan = document.createElement('span');
       wordSpan.className = 'word-drop just-dropped';
@@ -1144,7 +1146,7 @@ function switchStyle(styleName) {
     }
   });
 
-  document.body.className = `style-${currentStyle} ${playlist.length === 0 ? 'state-empty' : ''}`;
+  document.body.className = `style-${currentStyle} font-${currentFontId} ${playlist.length === 0 ? 'state-empty' : ''}`;
 
   if (currentStyle === 'visualizer') {
     if (window.milkdropEngine) {
@@ -1285,6 +1287,7 @@ function initTypographyStudio() {
 
     FONTS.forEach(f => document.body.classList.remove(`font-${f.id}`));
     document.body.classList.add(`font-${currentFontId}`);
+    document.documentElement.style.setProperty('--font-lyrics', font.family);
 
     if (fontBtnLabel) {
       fontBtnLabel.textContent = font.name;
