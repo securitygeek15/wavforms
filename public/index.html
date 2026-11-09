@@ -66,10 +66,10 @@
         <button id="btn-offset-plus" class="offset-btn">+0.1s</button>
       </div>
 
-      <!-- Visualizer Selector Pill (15 Cinematic Visualizers) -->
-      <button id="btn-viz-picker" class="viz-nav-btn" title="Choose Audio Visualizer (Hotkey: V)">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5v14M7 9v6M22 10v4M2 11v2"/></svg>
-        <span class="viz-btn-label" id="viz-btn-label">Liquid Chrome</span>
+      <!-- MilkDrop 3 Visualizer Selector Pill -->
+      <button id="btn-viz-picker" class="viz-nav-btn" title="Choose MilkDrop 3 Visualizer (Hotkey: V)">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <span class="viz-btn-label" id="viz-btn-label">⚡ MilkDrop 3</span>
       </button>
 
       <!-- Typography Studio (15 Fonts) -->
@@ -242,26 +242,16 @@
   <!-- ID3 Tag Parser -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 
-  <!-- Three.js Visualizer Engine & 15 Premium Visualizers -->
-  <script src="three.min.js"></script>
+  <!-- Audio Engine -->
   <script src="visualizers/audio-engine.js"></script>
-  <script src="visualizers/visualizer-base.js"></script>
-  <script src="visualizers/01-liquid-chrome.js"></script>
-  <script src="visualizers/02-black-hole.js"></script>
-  <script src="visualizers/03-neon-ribbon.js"></script>
-  <script src="visualizers/04-dreamscape.js"></script>
-  <script src="visualizers/05-abyss.js"></script>
-  <script src="visualizers/06-cyber-torus.js"></script>
-  <script src="visualizers/07-synthwave.js"></script>
-  <script src="visualizers/08-smoke.js"></script>
-  <script src="visualizers/09-glass-dimension.js"></script>
-  <script src="visualizers/10-ink-flow.js"></script>
-  <script src="visualizers/11-orbit.js"></script>
-  <script src="visualizers/12-particle-storm.js"></script>
-  <script src="visualizers/13-limbo.js"></script>
-  <script src="visualizers/14-digital-bloom.js"></script>
-  <script src="visualizers/15-infinite-tunnel.js"></script>
-  <script src="visualizers/visualizer-manager.js"></script>
+
+  <!-- MilkDrop 3 WebGL Visualizer Engine & 367 Classic/Crazy Presets -->
+  <script src="milkdrop/butterchurn.min.js"></script>
+  <script src="milkdrop/butterchurnExtraImages.min.js"></script>
+  <script src="milkdrop/butterchurnPresets.min.js"></script>
+  <script src="milkdrop/butterchurnPresetsExtra.min.js"></script>
+  <script src="milkdrop/butterchurnPresetsExtra2.min.js"></script>
+  <script src="milkdrop/milkdrop-engine.js"></script>
 
   <!-- Core App Logic -->
   <script src="app.js"></script>

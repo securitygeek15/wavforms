@@ -20,19 +20,20 @@ $headers = @{
 $releaseBody = @"
 ## wavforms v1.0.0
 
-Word-by-word real-time synchronized lyrics & 15 cinematic audio visualizers on Windows.
-Inspired by the minimalist luxury of Verci.
+Word-by-word real-time synchronized lyrics & MilkDrop 3 WebGL visualizer on Windows.
+Inspired by the minimalist luxury of Verci and the legendary visuals of Ryan Geiss's MilkDrop.
 
 ### Downloads
-- **wavforms-Setup.exe** (8.88 MB) — Aesthetic 1-Click Windows Installer (installs to `%LOCALAPPDATA%\Programs\wavforms` with Desktop and Start Menu shortcuts)
-- **wavforms-v1.0.0-windows-x64.zip** (8.40 MB) — Portable zero-install edition
+- **wavforms-Setup.exe** (9.40 MB) — Aesthetic 1-Click Windows Installer (installs to `%LOCALAPPDATA%\Programs\wavforms` with Desktop and Start Menu shortcuts)
+- **wavforms-v1.0.0-windows-x64.zip** (8.91 MB) — Portable zero-install edition
 
 ### Highlights
-- **15 Audio-Reactive Visualizers**: Liquid Chrome, Black Hole, Neon Ribbon, Dreamscape, Abyss, Cyber Torus, Synthwave, Smoke, Glass Dimension, Ink Flow, Orbit, Particle Storm, Limbo, Digital Bloom, Infinite Tunnel.
-- **Dedicated "Audio Visuals" Tab**: Top navigation switch between Visual, Ship, and Audio Visuals.
-- **Slow-Paced, Ambient Motion**: Deep inertia audio damping and smooth Steadicam drift.
+- **MilkDrop 3 Audio Visualizer Engine**: Powered by WebGL2 Butterchurn with 367 classic and crazy MilkDrop presets.
+- **Iconic Visuals & Artists**: Martin, Flexi, Ryan Geiss, Rovastar, Zylot, Unchained, Aderrasi, $$$ Royal, and more.
+- **Top Navigation Audio Visuals Tab**: Seamlessly toggle between Visual, Ship, and MilkDrop Audio Visuals.
+- **Smooth Preset Crossfade**: 2.7s seamless blending between presets with auto-cycle and random shuffle.
+- **Floating Verci Lyrics**: Minimalist frosted glass lyrics pill floating cleanly over MilkDrop.
 - **Word-by-Word Synchronized Lyrics**: Powered by NetEase YRC & LRCLIB fallback.
-- **Vocal Sync Fine-Tuning**: `[` and `]` hotkeys (±100ms).
 - **Discord Rich Presence Live**: Synchronized with active song and word.
 "@
 

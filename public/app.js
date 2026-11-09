@@ -217,9 +217,17 @@ window.addEventListener('keydown', (e) => {
   } else if (e.code === 'ArrowLeft') {
     audio.currentTime = Math.max(0, audio.currentTime - 5);
   } else if (e.key === '[' || e.key === '{') {
-    updateOffset(-100);
+    if (currentStyle === 'visualizer' && window.milkdropEngine) {
+      window.milkdropEngine.prevPreset();
+    } else {
+      updateOffset(-100);
+    }
   } else if (e.key === ']' || e.key === '}') {
-    updateOffset(100);
+    if (currentStyle === 'visualizer' && window.milkdropEngine) {
+      window.milkdropEngine.nextPreset();
+    } else {
+      updateOffset(100);
+    }
   } else if (e.key === 'f' || e.key === 'F') {
     toggleFullscreen();
   }
@@ -1139,7 +1147,10 @@ function switchStyle(styleName) {
   document.body.className = `style-${currentStyle} ${playlist.length === 0 ? 'state-empty' : ''}`;
 
   if (currentStyle === 'visualizer') {
-    if (window.visualizerManager) {
+    if (window.milkdropEngine) {
+      window.milkdropEngine.start();
+      window.milkdropEngine.resize();
+    } else if (window.visualizerManager) {
       window.visualizerManager.start();
       if (window.visualizerManager.activeVisualizer) {
         window.visualizerManager.activeVisualizer.resize(window.innerWidth, window.innerHeight);
@@ -1148,13 +1159,20 @@ function switchStyle(styleName) {
     if (currentLyrics && activeLineIndex >= 0) {
       renderLineOceanDrops(activeLineIndex);
     }
-  } else if (currentStyle === 'visual') {
-    if (currentLyrics) {
-      renderFullVerciTrack();
+  } else {
+    if (window.milkdropEngine) {
+      window.milkdropEngine.pause();
+    } else if (window.visualizerManager && window.visualizerManager.pause) {
+      window.visualizerManager.pause();
     }
-  } else if (currentStyle === 'ship') {
-    if (currentLyrics && activeLineIndex >= 0) {
-      renderLineOceanDrops(activeLineIndex);
+    if (currentStyle === 'visual') {
+      if (currentLyrics) {
+        renderFullVerciTrack();
+      }
+    } else if (currentStyle === 'ship') {
+      if (currentLyrics && activeLineIndex >= 0) {
+        renderLineOceanDrops(activeLineIndex);
+      }
     }
   }
 }
@@ -1298,11 +1316,29 @@ function initTypographyStudio() {
 // Initialize typography studio
 initTypographyStudio();
 
-// ──── 3D AUDIO-REACTIVE VISUALIZERS INITIALIZATION ────
+// ──── MILKDROP 3 AUDIO VISUALIZER INITIALIZATION ────
 function initVisualizers() {
   const container = document.getElementById('visualizer-container');
-  if (!container || !window.visualizerManager) return;
+  if (!container) return;
 
+  if (window.milkdropEngine) {
+    window.milkdropEngine.init(container);
+
+    const btnVizPicker = document.getElementById('btn-viz-picker');
+    if (btnVizPicker) {
+      btnVizPicker.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentStyle !== 'visualizer') {
+          switchStyle('visualizer');
+        }
+        window.milkdropEngine.toggleDrawer();
+      });
+    }
+    window.milkdropEngine.updateUI();
+    return;
+  }
+
+  if (!window.visualizerManager) return;
   window.visualizerManager.init(container);
 
   // Setup UI Drawer elements
