@@ -1144,7 +1144,7 @@ function switchStyle(styleName) {
     }
   });
 
-  document.body.className = `style-${currentStyle} ${playlist.length === 0 ? 'state-empty' : ''}`;
+  document.body.className = `style-${currentStyle} font-${currentFontId} ${playlist.length === 0 ? 'state-empty' : ''}`;
 
   if (currentStyle === 'visualizer') {
     if (window.milkdropEngine) {
@@ -1155,9 +1155,6 @@ function switchStyle(styleName) {
       if (window.visualizerManager.activeVisualizer) {
         window.visualizerManager.activeVisualizer.resize(window.innerWidth, window.innerHeight);
       }
-    }
-    if (currentLyrics && activeLineIndex >= 0) {
-      renderLineOceanDrops(activeLineIndex);
     }
   } else {
     if (window.milkdropEngine) {
@@ -1285,6 +1282,7 @@ function initTypographyStudio() {
 
     FONTS.forEach(f => document.body.classList.remove(`font-${f.id}`));
     document.body.classList.add(`font-${currentFontId}`);
+    document.documentElement.style.setProperty('--font-lyrics', font.family);
 
     if (fontBtnLabel) {
       fontBtnLabel.textContent = font.name;
