@@ -20,19 +20,20 @@ $headers = @{
 $releaseBody = @"
 ## wavforms v1.0.0
 
-Word-by-word real-time synchronized lyrics on Windows.
+Word-by-word real-time synchronized lyrics & 15 cinematic audio visualizers on Windows.
 Inspired by the minimalist luxury of Verci.
 
 ### Downloads
-- **wavforms-Setup.exe** (1.53 MB) — Aesthetic 1-Click Windows Installer (installs to `%LOCALAPPDATA%\Programs\wavforms` with Desktop and Start Menu shortcuts)
-- **wavforms-v1.0.0-windows-x64.zip** (1.05 MB) — Portable zero-install edition
+- **wavforms-Setup.exe** (8.88 MB) — Aesthetic 1-Click Windows Installer (installs to `%LOCALAPPDATA%\Programs\wavforms` with Desktop and Start Menu shortcuts)
+- **wavforms-v1.0.0-windows-x64.zip** (8.40 MB) — Portable zero-install edition
 
 ### Highlights
-- True word-by-word synchronized lyrics powered by NetEase YRC & LRCLIB fallback
-- Single-line active spotlight with fluid liquid drop transitions
-- Two core aesthetic display styles: **Ship** (3D perspective drift) and **Visual** (kinetic typography + dynamic accents)
-- On-the-fly vocal sync fine-tuning using `[` and `]` (±100ms)
-- Drag-and-drop local music files and custom `.lrc`/`.yrc` files
+- **15 Audio-Reactive Visualizers**: Liquid Chrome, Black Hole, Neon Ribbon, Dreamscape, Abyss, Cyber Torus, Synthwave, Smoke, Glass Dimension, Ink Flow, Orbit, Particle Storm, Limbo, Digital Bloom, Infinite Tunnel.
+- **Dedicated "Audio Visuals" Tab**: Top navigation switch between Visual, Ship, and Audio Visuals.
+- **Slow-Paced, Ambient Motion**: Deep inertia audio damping and smooth Steadicam drift.
+- **Word-by-Word Synchronized Lyrics**: Powered by NetEase YRC & LRCLIB fallback.
+- **Vocal Sync Fine-Tuning**: `[` and `]` hotkeys (±100ms).
+- **Discord Rich Presence Live**: Synchronized with active song and word.
 "@
 
 $payloadJson = (@{
