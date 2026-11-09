@@ -1131,6 +1131,27 @@ document.getElementById('queue-close').addEventListener('click', () => {
   queuePanel.classList.remove('open');
 });
 
+// ──── TYPOGRAPHY STUDIO (15 CURATED FONTS) ────
+const FONTS = [
+  { id: 'anton', name: 'Anton', tag: 'Bold Poster Impact', family: "'Anton', sans-serif" },
+  { id: 'syne', name: 'Syne', tag: 'Avant-Garde Luxury', family: "'Syne', sans-serif" },
+  { id: 'cinzel', name: 'Cinzel', tag: 'Imperial Roman', family: "'Cinzel', serif" },
+  { id: 'plus-jakarta', name: 'Plus Jakarta Sans', tag: 'Modern Neo-Grotesque', family: "'Plus Jakarta Sans', sans-serif" },
+  { id: 'space-grotesk', name: 'Space Grotesk', tag: 'Cyber Tech Brutalism', family: "'Space Grotesk', sans-serif" },
+  { id: 'bebas-neue', name: 'Bebas Neue', tag: 'Cinematic Billboard', family: "'Bebas Neue', sans-serif" },
+  { id: 'playfair', name: 'Playfair Display', tag: 'Vogue Editorial Serif', family: "'Playfair Display', serif" },
+  { id: 'outfit', name: 'Outfit', tag: 'Clean Geometric Sans', family: "'Outfit', sans-serif" },
+  { id: 'righteous', name: 'Righteous', tag: 'Retro 80s Synthwave', family: "'Righteous', cursive" },
+  { id: 'unbounded', name: 'Unbounded', tag: 'Futuristic Ultra-Wide', family: "'Unbounded', sans-serif" },
+  { id: 'oswald', name: 'Oswald', tag: 'Modern Gothic Caps', family: "'Oswald', sans-serif" },
+  { id: 'italiana', name: 'Italiana', tag: 'Milan Haute Couture', family: "'Italiana', serif" },
+  { id: 'orbitron', name: 'Orbitron', tag: 'Sci-Fi Cyberpunk', family: "'Orbitron', sans-serif" },
+  { id: 'major-mono', name: 'Major Mono Display', tag: 'Abstract Experimental', family: "'Major Mono Display', monospace" },
+  { id: 'jetbrains', name: 'JetBrains Mono', tag: 'Developer Terminal', family: "'JetBrains Mono', monospace" }
+];
+
+let currentFontId = localStorage.getItem('wavforms_font') || 'anton';
+
 // Style Switcher: VISUAL, SHIP & AUDIO VISUALS
 function switchStyle(styleName) {
   currentStyle = styleName;
@@ -1225,27 +1246,6 @@ function updateDiscordRPC(force = false) {
     }
   }).catch(() => {});
 }
-
-// ──── TYPOGRAPHY STUDIO (15 CURATED FONTS) ────
-const FONTS = [
-  { id: 'anton', name: 'Anton', tag: 'Bold Poster Impact', family: "'Anton', sans-serif" },
-  { id: 'syne', name: 'Syne', tag: 'Avant-Garde Luxury', family: "'Syne', sans-serif" },
-  { id: 'cinzel', name: 'Cinzel', tag: 'Imperial Roman', family: "'Cinzel', serif" },
-  { id: 'plus-jakarta', name: 'Plus Jakarta Sans', tag: 'Modern Neo-Grotesque', family: "'Plus Jakarta Sans', sans-serif" },
-  { id: 'space-grotesk', name: 'Space Grotesk', tag: 'Cyber Tech Brutalism', family: "'Space Grotesk', sans-serif" },
-  { id: 'bebas-neue', name: 'Bebas Neue', tag: 'Cinematic Billboard', family: "'Bebas Neue', sans-serif" },
-  { id: 'playfair', name: 'Playfair Display', tag: 'Vogue Editorial Serif', family: "'Playfair Display', serif" },
-  { id: 'outfit', name: 'Outfit', tag: 'Clean Geometric Sans', family: "'Outfit', sans-serif" },
-  { id: 'righteous', name: 'Righteous', tag: 'Retro 80s Synthwave', family: "'Righteous', cursive" },
-  { id: 'unbounded', name: 'Unbounded', tag: 'Futuristic Ultra-Wide', family: "'Unbounded', sans-serif" },
-  { id: 'oswald', name: 'Oswald', tag: 'Modern Gothic Caps', family: "'Oswald', sans-serif" },
-  { id: 'italiana', name: 'Italiana', tag: 'Milan Haute Couture', family: "'Italiana', serif" },
-  { id: 'orbitron', name: 'Orbitron', tag: 'Sci-Fi Cyberpunk', family: "'Orbitron', sans-serif" },
-  { id: 'major-mono', name: 'Major Mono Display', tag: 'Abstract Experimental', family: "'Major Mono Display', monospace" },
-  { id: 'jetbrains', name: 'JetBrains Mono', tag: 'Developer Terminal', family: "'JetBrains Mono', monospace" }
-];
-
-let currentFontId = localStorage.getItem('wavforms_font') || 'anton';
 
 function initTypographyStudio() {
   const fontPickerWrap = document.getElementById('font-picker-wrap');
