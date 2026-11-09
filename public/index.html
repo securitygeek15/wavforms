@@ -45,10 +45,11 @@
       </div>
     </div>
 
-    <!-- Center: ONLY SHIP AND VISUAL & Discord RPC -->
+    <!-- Center: Visual, Ship & Audio Visuals + Discord RPC -->
     <nav class="style-nav">
       <button class="nav-item active" data-style="visual">Visual</button>
       <button class="nav-item" data-style="ship">Ship</button>
+      <button class="nav-item" data-style="visualizer">Audio Visuals</button>
     </nav>
 
     <div class="discord-rpc-pill" id="discord-rpc-pill" title="Discord Rich Presence Live">
@@ -64,6 +65,12 @@
         <span class="offset-val" id="offset-display">0.0s</span>
         <button id="btn-offset-plus" class="offset-btn">+0.1s</button>
       </div>
+
+      <!-- Visualizer Selector Pill (15 Cinematic Visualizers) -->
+      <button id="btn-viz-picker" class="viz-nav-btn" title="Choose Audio Visualizer (Hotkey: V)">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5v14M7 9v6M22 10v4M2 11v2"/></svg>
+        <span class="viz-btn-label" id="viz-btn-label">Liquid Chrome</span>
+      </button>
 
       <!-- Typography Studio (15 Fonts) -->
       <div class="font-picker-wrap" id="font-picker-wrap">
@@ -118,6 +125,9 @@
   <!-- Ocean Stage: Single Focused Dropping Line Presentation -->
   <main class="ocean-stage" id="ocean-stage">
     
+    <!-- 3D Audio-Reactive Visualizer Canvas Viewport (Underneath Lyrics) -->
+    <div class="visualizer-container" id="visualizer-container"></div>
+
     <!-- DEDICATED OPENING SCREEN: IMPORT SONGS -->
     <div class="import-landing" id="import-landing">
       <div class="import-card">
@@ -202,11 +212,58 @@
     </div>
   </aside>
 
+  <!-- Slide-out Visualizer Selection Drawer (15 Cinematic Visualizers) -->
+  <div class="viz-drawer" id="viz-drawer">
+    <div class="viz-drawer-backdrop" id="viz-drawer-backdrop"></div>
+    <div class="viz-drawer-content">
+      <div class="viz-drawer-header">
+        <div class="viz-drawer-title-wrap">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5v14M7 9v6M22 10v4M2 11v2"/></svg>
+          <span class="viz-drawer-title">Audio-Reactive Visualizers</span>
+          <span class="viz-drawer-badge">15 Cinematic Scenes</span>
+        </div>
+        <div class="viz-drawer-controls">
+          <div class="viz-quality-group">
+            <span class="viz-control-label">Quality:</span>
+            <button class="viz-quality-btn active" data-quality="high">High</button>
+            <button class="viz-quality-btn" data-quality="balanced">Balanced</button>
+            <button class="viz-quality-btn" data-quality="low">Low</button>
+          </div>
+          <button class="viz-drawer-close" id="viz-drawer-close" title="Close (V or Esc)">✕</button>
+        </div>
+      </div>
+      <div class="viz-grid" id="viz-grid"></div>
+    </div>
+  </div>
+
   <!-- Audio Element -->
   <audio id="audio" preload="auto"></audio>
 
   <!-- ID3 Tag Parser -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+
+  <!-- Three.js Visualizer Engine & 15 Premium Visualizers -->
+  <script src="three.min.js"></script>
+  <script src="visualizers/audio-engine.js"></script>
+  <script src="visualizers/visualizer-base.js"></script>
+  <script src="visualizers/01-liquid-chrome.js"></script>
+  <script src="visualizers/02-black-hole.js"></script>
+  <script src="visualizers/03-neon-ribbon.js"></script>
+  <script src="visualizers/04-dreamscape.js"></script>
+  <script src="visualizers/05-abyss.js"></script>
+  <script src="visualizers/06-cyber-torus.js"></script>
+  <script src="visualizers/07-synthwave.js"></script>
+  <script src="visualizers/08-smoke.js"></script>
+  <script src="visualizers/09-glass-dimension.js"></script>
+  <script src="visualizers/10-ink-flow.js"></script>
+  <script src="visualizers/11-orbit.js"></script>
+  <script src="visualizers/12-particle-storm.js"></script>
+  <script src="visualizers/13-limbo.js"></script>
+  <script src="visualizers/14-digital-bloom.js"></script>
+  <script src="visualizers/15-infinite-tunnel.js"></script>
+  <script src="visualizers/visualizer-manager.js"></script>
+
+  <!-- Core App Logic -->
   <script src="app.js"></script>
 </body>
 </html>

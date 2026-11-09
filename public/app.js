@@ -135,8 +135,18 @@ document.getElementById('btn-offset-minus').addEventListener('click', () => upda
 document.getElementById('btn-offset-plus').addEventListener('click', () => updateOffset(100));
 
 // ──── PLAYBACK CONTROLS ────
+function ensureAudioEngineAttached() {
+  if (window.audioEngine) {
+    window.audioEngine.attachAudioElement(audio);
+  }
+}
+
+window.addEventListener('click', ensureAudioEngineAttached, { once: true });
+window.addEventListener('keydown', ensureAudioEngineAttached, { once: true });
+
 function togglePlayback() {
   if (playlist.length === 0) return;
+  ensureAudioEngineAttached();
   if (audio.paused) {
     audio.play().then(() => updatePlayState(true)).catch(() => updatePlayState(false));
   } else {
@@ -313,6 +323,7 @@ async function loadTrack(index) {
     currentLineEl.innerHTML = '<span class="idle-message">No synchronized lyrics found for this song</span>';
   }
 
+  ensureAudioEngineAttached();
   audio.play().then(() => updatePlayState(true)).catch(() => updatePlayState(false));
 }
 
@@ -473,7 +484,7 @@ function parsePlainLyricsText(plainText, title, durationMs) {
   };
 }
 
-let currentStyle = 'visual';
+let currentStyle = localStorage.getItem('wavforms_style') || 'visual';
 
 // ──── CANVAS ACOUSTIC WATER SPLASH RIPPLES ────
 const rippleCanvas = document.getElementById('ocean-ripple-canvas');
@@ -1112,22 +1123,50 @@ document.getElementById('queue-close').addEventListener('click', () => {
   queuePanel.classList.remove('open');
 });
 
-// Style Switcher: ONLY SHIP AND VISUAL
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentStyle = btn.dataset.style;
-    document.body.className = `style-${currentStyle} ${playlist.length === 0 ? 'state-empty' : ''}`;
-    if (currentLyrics) {
-      if (currentStyle === 'visual') {
-        renderFullVerciTrack();
-      } else if (activeLineIndex >= 0) {
-        renderLineOceanDrops(activeLineIndex);
-      }
+// Style Switcher: VISUAL, SHIP & AUDIO VISUALS
+function switchStyle(styleName) {
+  currentStyle = styleName;
+  localStorage.setItem('wavforms_style', currentStyle);
+
+  document.querySelectorAll('.nav-item').forEach(b => {
+    if (b.dataset.style === currentStyle) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
     }
   });
+
+  document.body.className = `style-${currentStyle} ${playlist.length === 0 ? 'state-empty' : ''}`;
+
+  if (currentStyle === 'visualizer') {
+    if (window.visualizerManager) {
+      window.visualizerManager.start();
+      if (window.visualizerManager.activeVisualizer) {
+        window.visualizerManager.activeVisualizer.resize(window.innerWidth, window.innerHeight);
+      }
+    }
+    if (currentLyrics && activeLineIndex >= 0) {
+      renderLineOceanDrops(activeLineIndex);
+    }
+  } else if (currentStyle === 'visual') {
+    if (currentLyrics) {
+      renderFullVerciTrack();
+    }
+  } else if (currentStyle === 'ship') {
+    if (currentLyrics && activeLineIndex >= 0) {
+      renderLineOceanDrops(activeLineIndex);
+    }
+  }
+}
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    switchStyle(btn.dataset.style);
+  });
 });
+
+// Set initial style state
+switchStyle(currentStyle);
 
 // ──── DISCORD RICH PRESENCE (RPC) CLIENT ────
 let lastDiscordUpdateMs = 0;
@@ -1258,3 +1297,90 @@ function initTypographyStudio() {
 
 // Initialize typography studio
 initTypographyStudio();
+
+// ──── 3D AUDIO-REACTIVE VISUALIZERS INITIALIZATION ────
+function initVisualizers() {
+  const container = document.getElementById('visualizer-container');
+  if (!container || !window.visualizerManager) return;
+
+  window.visualizerManager.init(container);
+
+  // Setup UI Drawer elements
+  const btnVizPicker = document.getElementById('btn-viz-picker');
+  const vizDrawer = document.getElementById('viz-drawer');
+  const vizDrawerClose = document.getElementById('viz-drawer-close');
+  const vizDrawerBackdrop = document.getElementById('viz-drawer-backdrop');
+  const vizGrid = document.getElementById('viz-grid');
+  const qualityBtns = document.querySelectorAll('.viz-quality-btn');
+
+  // Populate 15 cards in drawer grid
+  if (vizGrid) {
+    vizGrid.innerHTML = '';
+    window.visualizerManager.catalogue.forEach(v => {
+      const card = document.createElement('div');
+      card.className = `viz-card ${v.id === window.visualizerManager.currentId ? 'active' : ''}`;
+      card.dataset.id = v.id;
+      card.innerHTML = `
+        <div class="viz-card-top">
+          <span class="viz-card-num">${v.num}</span>
+          <span class="viz-card-indicator"></span>
+        </div>
+        <div class="viz-card-name">${v.name}</div>
+        <p class="viz-card-desc">${v.desc}</p>
+      `;
+      card.addEventListener('click', () => {
+        window.visualizerManager.mountVisualizer(v.id, true);
+        window.visualizerManager.closeDrawer();
+      });
+      vizGrid.appendChild(card);
+    });
+  }
+
+  // Quality selector buttons
+  qualityBtns.forEach(btn => {
+    if (btn.dataset.quality === window.visualizerManager.quality) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+
+    btn.addEventListener('click', () => {
+      qualityBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      window.visualizerManager.setQuality(btn.dataset.quality);
+    });
+  });
+
+  // Open/close drawer triggers
+  if (btnVizPicker) {
+    btnVizPicker.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentStyle !== 'visualizer') {
+        switchStyle('visualizer');
+      }
+      window.visualizerManager.toggleDrawer();
+    });
+  }
+  if (vizDrawerClose) {
+    vizDrawerClose.addEventListener('click', () => window.visualizerManager.closeDrawer());
+  }
+  if (vizDrawerBackdrop) {
+    vizDrawerBackdrop.addEventListener('click', () => window.visualizerManager.closeDrawer());
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && vizDrawer && vizDrawer.classList.contains('open')) {
+      window.visualizerManager.closeDrawer();
+    }
+  });
+
+  // Update initial UI button label
+  window.visualizerManager.updateUI();
+}
+
+// Initialize Visualizers
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initVisualizers);
+} else {
+  initVisualizers();
+}
