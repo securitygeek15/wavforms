@@ -9,7 +9,7 @@ if ([string]::IsNullOrWhiteSpace($token)) {
 }
 
 $repo = "securitygeek15/wavforms"
-$tag = "v1.0.0"
+$tag = "v1.2.0"
 
 $headers = @{
     "Authorization" = "token $token"
@@ -18,29 +18,30 @@ $headers = @{
 }
 
 $releaseBody = @"
-## wavforms v1.0.0
+## wavforms v1.2.0
 
 Word-by-word real-time synchronized lyrics & MilkDrop 3 WebGL visualizer on Windows.
-Inspired by the minimalist luxury of Verci and the legendary visuals of Ryan Geiss's MilkDrop.
+Inspired by the minimalist luxury of Verci and the legendary audio-reactive demoscene presets of MilkDrop.
+
+### What's New in v1.2.0
+- **MilkDrop 3 WebGL Visualizer**: 367 curated offline presets running on hardware-accelerated WebGL2 (Butterchurn).
+- **Legendary Preset Creators**: Martin, Flexi, Ryan Geiss, Rovastar, Zylot, Unchained, Aderrasi, $$$ Royal, and more.
+- **Top Navigation Audio Visuals Mode**: Clean dedicated mode purely focused on the visualizer experience without subtitle clutter.
+- **Preset Studio Drawer (`V`)**: Slide-out drawer to search, filter by artist, or select presets on the fly.
+- **Seamless 2.7s Crossfades**: Ultra-smooth blending between presets with Auto-Cycle (`L`) and Random Jump (`R`).
+- **Word-by-Word Synchronized Lyrics**: Millisecond-precision YRC karaoke format with acoustic ripples and luminescent lighting.
+- **Discord Rich Presence Live**: Synchronized track, artist, time elapsed, and current lyric line broadcast.
 
 ### Downloads
-- **wavforms-Setup.exe** (9.40 MB) — Aesthetic 1-Click Windows Installer (installs to `%LOCALAPPDATA%\Programs\wavforms` with Desktop and Start Menu shortcuts)
-- **wavforms-v1.0.0-windows-x64.zip** (8.91 MB) — Portable zero-install edition
-
-### Highlights
-- **MilkDrop 3 Audio Visualizer Engine**: Powered by WebGL2 Butterchurn with 367 classic and crazy MilkDrop presets.
-- **Iconic Visuals & Artists**: Martin, Flexi, Ryan Geiss, Rovastar, Zylot, Unchained, Aderrasi, $$$ Royal, and more.
-- **Top Navigation Audio Visuals Tab**: Seamlessly toggle between Visual, Ship, and MilkDrop Audio Visuals.
-- **Smooth Preset Crossfade**: 2.7s seamless blending between presets with auto-cycle and random shuffle.
-- **Floating Verci Lyrics**: Minimalist frosted glass lyrics pill floating cleanly over MilkDrop.
-- **Word-by-Word Synchronized Lyrics**: Powered by NetEase YRC & LRCLIB fallback.
-- **Discord Rich Presence Live**: Synchronized with active song and word.
+- **wavforms-Setup.exe** — Aesthetic 1-Click Windows GUI Installer (installs to `%LOCALAPPDATA%\Programs\wavforms` with Desktop and Start Menu shortcuts)
+- **wavforms-Setup-v1.2.0.exe** — Versioned 1-Click Windows Setup
+- **wavforms-v1.2.0-windows-x64.zip** — Portable zero-install edition
 "@
 
 $payloadJson = (@{
     tag_name = $tag
     target_commitish = "main"
-    name = "wavforms v1.0.0"
+    name = "wavforms v1.2.0"
     body = $releaseBody
     draft = $false
     prerelease = $false
@@ -63,8 +64,8 @@ $uploadUrlTemplate = $release.upload_url
 # Upload assets
 $assets = @(
     @{ Path = "dist\wavforms-Setup.exe"; ContentType = "application/octet-stream"; Name = "wavforms-Setup.exe" },
-    @{ Path = "dist\wavforms-Setup-v1.0.0.exe"; ContentType = "application/octet-stream"; Name = "wavforms-Setup-v1.0.0.exe" },
-    @{ Path = "dist\wavforms-v1.0.0-windows-x64.zip"; ContentType = "application/zip"; Name = "wavforms-v1.0.0-windows-x64.zip" },
+    @{ Path = "dist\wavforms-Setup-v1.2.0.exe"; ContentType = "application/octet-stream"; Name = "wavforms-Setup-v1.2.0.exe" },
+    @{ Path = "dist\wavforms-v1.2.0-windows-x64.zip"; ContentType = "application/zip"; Name = "wavforms-v1.2.0-windows-x64.zip" },
     @{ Path = "assets\wavformsshowcase.mp4"; ContentType = "video/mp4"; Name = "wavformsshowcase.mp4" }
 )
 

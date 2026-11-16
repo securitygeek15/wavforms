@@ -1,6 +1,6 @@
 {
   "name": "wavforms",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Real-time word-by-word synchronized lyrics on Windows with fluid audio visualizers and luxury aesthetics",
   "main": "server.js",
   "type": "module",

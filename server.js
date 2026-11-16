@@ -449,7 +449,7 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/api/ping') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ app: 'wavforms', version: '1.0.0' }));
+    res.end(JSON.stringify({ app: 'wavforms', version: '1.2.0' }));
     return;
   }
 

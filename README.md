@@ -16,7 +16,7 @@
   </p>
 
   <p>
-    <img src="https://img.shields.io/badge/Version-v1.0.0-fb6e90?style=flat-square" alt="Version" />
+    <img src="https://img.shields.io/badge/Version-v1.2.0-fb6e90?style=flat-square" alt="Version" />
     <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-black?style=flat-square" alt="Platform" />
     <img src="https://img.shields.io/badge/Lyrics-YRC%20Word--Level-ffffff?style=flat-square" alt="YRC" />
     <img src="https://img.shields.io/badge/Visualizer-MilkDrop%203-ff007f?style=flat-square" alt="MilkDrop 3" />

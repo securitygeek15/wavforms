@@ -1,7 +1,7 @@
 # wavforms Release & Aesthetic Windows Installer Builder
 $ErrorActionPreference = "Stop"
 
-$version = "1.0.0"
+$version = "1.2.0"
 $distDir = "$PSScriptRoot\..\dist"
 $stageDir = "$distDir\staging"
 $portableZip = "$distDir\wavforms-v$version-windows-x64.zip"

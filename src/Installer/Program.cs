@@ -254,7 +254,7 @@ namespace Wavforms.Installer
                     if (key != null)
                     {
                         key.SetValue("DisplayName", "wavforms");
-                        key.SetValue("DisplayVersion", "1.0.0");
+                        key.SetValue("DisplayVersion", "1.2.0");
                         key.SetValue("Publisher", "wavforms");
                         key.SetValue("DisplayIcon", iconPath);
                         key.SetValue("InstallLocation", targetDir);
@@ -368,7 +368,7 @@ namespace Wavforms.Installer
             using (var footBrush = new SolidBrush(Color.FromArgb(70, 70, 80)))
             {
                 var footFormat = new StringFormat { Alignment = StringAlignment.Center };
-                g.DrawString("v1.0.0 • Licensed under MIT", footFont, footBrush, new RectangleF(0, Height - 30, Width, 20), footFormat);
+                g.DrawString("v1.2.0 • Licensed under MIT", footFont, footBrush, new RectangleF(0, Height - 30, Width, 20), footFormat);
             }
         }
 
