@@ -10,9 +10,6 @@
     <a href="https://github.com/securitygeek15/wavforms/releases/latest">
       <img src="https://img.shields.io/badge/Download-Windows%20Installer%20(.exe)-ffffff?style=for-the-badge&logo=windows&logoColor=black" alt="Download Windows Installer" />
     </a>
-    <a href="https://github.com/securitygeek15/wavforms/releases/latest">
-      <img src="https://img.shields.io/badge/Download-Portable%20(.zip)-18181b?style=for-the-badge&logo=zip&logoColor=white" alt="Download Portable" />
-    </a>
   </p>
 
   <p>
@@ -25,9 +22,7 @@
   </p>
 
   <p align="center">
-    <a href="https://github.com/securitygeek15/wavforms/releases/download/v1.0.0/wavformsshowcase.mp4">
-      <img src="assets/showcase.gif" alt="wavforms word-by-word synchronized lyrics showcase" width="100%" style="border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.85);" />
-    </a>
+    <img src="assets/showcase.gif" alt="wavforms word-by-word synchronized lyrics showcase" width="100%" style="border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.85);" />
   </p>
 </div>
 
@@ -47,7 +42,7 @@ No subscription, no account, no Spotify clutter. Just drop your songs in and exp
 
 ## How It Works in 3 Steps
 
-1. **Download & Run**: Grab the **[1-Click Windows Setup](https://github.com/securitygeek15/wavforms/releases/latest)** (or Portable ZIP). It sets up a desktop shortcut with the high-res icon.
+1. **Download & Run**: Grab the **[1-Click Windows Setup](https://github.com/securitygeek15/wavforms/releases/latest)**. It sets up a desktop shortcut with the high-res icon.
 2. **Drop Your Music**: Drag and drop any songs or your entire music folder (`.mp3`, `.wav`, `.flac`, `.m4a`, `.ogg`) into the window.
 3. **Experience the Music**: `wavforms` automatically extracts the song's title, artist, and embedded cover art, matches the exact studio release, and lights the lyrics or audio visuals in real time.
 

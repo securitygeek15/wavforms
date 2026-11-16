@@ -33,9 +33,7 @@ Inspired by the minimalist luxury of Verci and the legendary audio-reactive demo
 - **Discord Rich Presence Live**: Synchronized track, artist, time elapsed, and current lyric line broadcast.
 
 ### Downloads
-- **wavforms-Setup.exe** — Aesthetic 1-Click Windows GUI Installer (installs to `%LOCALAPPDATA%\Programs\wavforms` with Desktop and Start Menu shortcuts)
-- **wavforms-Setup-v1.2.0.exe** — Versioned 1-Click Windows Setup
-- **wavforms-v1.2.0-windows-x64.zip** — Portable zero-install edition
+- **[wavforms-Setup-v1.2.0.exe](https://github.com/securitygeek15/wavforms/releases/download/v1.2.0/wavforms-Setup-v1.2.0.exe)** — 1-Click Aesthetic Windows GUI Installer (installs to `%LOCALAPPDATA%\Programs\wavforms` with Desktop and Start Menu shortcuts)
 "@
 
 $payloadJson = (@{
@@ -61,12 +59,9 @@ try {
 }
 $uploadUrlTemplate = $release.upload_url
 
-# Upload assets
+# Upload assets (only versioned exe)
 $assets = @(
-    @{ Path = "dist\wavforms-Setup.exe"; ContentType = "application/octet-stream"; Name = "wavforms-Setup.exe" },
-    @{ Path = "dist\wavforms-Setup-v1.2.0.exe"; ContentType = "application/octet-stream"; Name = "wavforms-Setup-v1.2.0.exe" },
-    @{ Path = "dist\wavforms-v1.2.0-windows-x64.zip"; ContentType = "application/zip"; Name = "wavforms-v1.2.0-windows-x64.zip" },
-    @{ Path = "assets\wavformsshowcase.mp4"; ContentType = "video/mp4"; Name = "wavformsshowcase.mp4" }
+    @{ Path = "dist\wavforms-Setup-v1.2.0.exe"; ContentType = "application/octet-stream"; Name = "wavforms-Setup-v1.2.0.exe" }
 )
 
 foreach ($asset in $assets) {
